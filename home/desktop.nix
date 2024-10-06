@@ -9,6 +9,7 @@
 }: {
   # You can import other home-manager modules here
   imports = [
+    ./common/emacs
     # If you want to use home-manager modules from other flakes (such as nix-colors):
     # inputs.nix-colors.homeManagerModule
 
@@ -47,14 +48,17 @@
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
   home.packages = with pkgs; [ 
-    vim
-    wget
-    firefox
-    xclip
     alacritty
-    pavucontrol
+    rofi
+    htop
+    firefox
     git
     helix
+    pavucontrol
+    vim
+    wget
+    xclip
+    xmobar
   ];
 
   # Enable home-manager and git
