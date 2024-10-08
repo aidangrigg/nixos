@@ -1,35 +1,32 @@
-import XMonad
+import           XMonad
+import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.ManageDocks
+import           XMonad.Hooks.ManageHelpers
+import           XMonad.Hooks.StatusBar
+import           XMonad.Hooks.StatusBar.PP
+import           XMonad.Hooks.EwmhDesktops
+import           XMonad.Layout.Spacing
+import           XMonad.Layout.NoBorders
+import           XMonad.Layout.Magnifier
+import           XMonad.Layout.ThreeColumns
+import           XMonad.Util.EZConfig
+import           XMonad.Util.Loggers
+import           XMonad.Util.Run (spawnPipe)
 
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.StatusBar
-import XMonad.Hooks.StatusBar.PP
+import           Data.List.NonEmpty (toList, NonEmpty)
+import           Data.Maybe
+import           Data.Org
+import           Data.Time (Day, TimeOfDay(..), fromGregorian, showGregorian)
+import           Text.Printf (printf)
 
-import XMonad.Util.EZConfig
-import XMonad.Util.Loggers
-import XMonad.Util.Run (spawnPipe)
-
--- NOTE: Importing XMonad.Util.Ungrab is only necessary for versions
--- < 0.18.0! For 0.18.0 and up, this is already included in the
--- XMonad import and will generate a warning instead!
-
-import XMonad.Layout.Magnifier
-import XMonad.Layout.ThreeColumns
-
-import XMonad.Hooks.EwmhDesktops
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
 
 --  Default programs
-terminal :: String
+terminal, browser, launcher, emacs :: String
 terminal = "alacritty"
-
-browser :: String
 browser  = "firefox"
-
-launcher :: String
 launcher = "rofi -show drun"
-
-emacs :: String
 emacs = "emacsclient -c"
 
 main :: IO ()
@@ -45,18 +42,18 @@ main = do
 
 myConfig = def
     { modMask    = mod4Mask      -- Rebind Mod to the Super key
-    , layoutHook = myLayout      -- Use custom layouts
+    , layoutHook = smartSpacing 5 $ smartBorders $ myLayout      -- Use custom layouts
     , manageHook = myManageHook  -- Match on certain windows
+    , normalBorderColor = "#111111"
+    , focusedBorderColor = "#FFFFFF"
     }
   `additionalKeysP`
-    [ ("M-S-z"      ,       spawn "xscreensaver-command -lock")
-    , ("M-b"        ,       spawn Main.browser)
+    [ ("M-b"        ,       spawn Main.browser)
     , ("M-<Return>" ,       spawn Main.terminal)
     , ("M-S-q"      ,       kill)
     , ("M-S-e"      ,       spawn Main.emacs)
-    , ("M-<Space>"  ,       spawn Main.launcher)
+    , ("M-d"        ,       spawn Main.launcher)
     , ("M-q"        ,       spawn "xmonad --restart")
-    , ("M-p"        ,       spawn "firefox")
     ]
 
 myManageHook :: ManageHook
@@ -65,13 +62,13 @@ myManageHook = composeAll
     , isDialog            --> doFloat
     ]
 
-myLayout = tiled ||| Mirror tiled ||| Full ||| threeCol
+myLayout = tiled ||| Full
   where
-    threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta ratio
     tiled    = Tall nmaster delta ratio
     nmaster  = 1      -- Default number of windows in the master pane
-    ratio    = 1/2    -- Default proportion of screen occupied by master pane
+    ratio    = 2/3    -- Default proportion of screen occupied by master pane
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
+
 
 myXmobarPP :: PP
 myXmobarPP = def
@@ -79,14 +76,20 @@ myXmobarPP = def
     , ppTitleSanitize   = xmobarStrip
     , ppCurrent         = white . wrap " " "" . xmobarBorder "Bottom" "#8be9fd" 2
     , ppHidden          = white . wrap " " ""
-    , ppHiddenNoWindows = lowWhite . wrap " " ""
+    , ppHiddenNoWindows = (\_ -> "")
     , ppUrgent          = red . wrap (yellow "!") (yellow "!")
     , ppLayout          = white
-    , ppOrder           = \[ws, l, _] -> [ws, l]
+    , ppOrder           = \[w,l,_,o] -> [w,l,o]
+    , ppExtras          = [orgTodoLogger]
     }
   where
     formatFocused   = wrap (white    "[") (white    "]") . magenta . ppWindow
     formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . blue    . ppWindow
+
+    orgTodoLogger :: X (Maybe String)
+    orgTodoLogger = do
+      f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
+      return $ (org f) >>= (closestTodosPP . closestTodos)
 
     -- | Windows should have *some* title, which should not not exceed a
     -- sane length.
@@ -100,3 +103,89 @@ myXmobarPP = def
     yellow   = xmobarColor "#f1fa8c" ""
     red      = xmobarColor "#ff5555" ""
     lowWhite = xmobarColor "#bbbbbb" ""
+
+------------------------------------------------------------------------------------
+-- ORG TODOS                                                                      --
+------------------------------------------------------------------------------------
+
+data ClosestTodos = ClosestTodos
+  { todoDeadline :: Maybe Section
+  , todoScheduled :: Maybe Section
+  }
+
+getTodosWithTimestamp :: OrgDoc -> ([Section], [Section])
+getTodosWithTimestamp OrgDoc{docSections = secs} =
+  (deadlines, scheduled)
+  where
+    sections = flattenSections secs
+    deadlines = filter (isJust . sectionDeadline) sections
+    scheduled = filter (isJust . sectionScheduled) sections
+
+    flattenSections :: [Section] -> [Section]
+    flattenSections [] = []
+    flattenSections (x:xs) =
+      [x] ++ flattenSections ((docSections . sectionDoc) x) ++ flattenSections xs
+
+closestTodos :: OrgFile -> ClosestTodos
+closestTodos (OrgFile _ doc) =
+  (ClosestTodos d s)
+  where
+    (deadlines, schedules) = getTodosWithTimestamp doc
+
+    compareSectionDeadline :: Section -> Section -> Section
+    compareSectionDeadline s1 s2 =
+      if (sectionDeadline s1) < (sectionDeadline s2)
+      then s1 else s2
+
+    compareSectionSchedule :: Section -> Section -> Section
+    compareSectionSchedule s1 s2 =
+      if (sectionScheduled s1) < (sectionScheduled s2)
+      then s1 else s2
+
+    d = if null deadlines
+      then Nothing
+      else Just $ foldr1 compareSectionDeadline deadlines
+
+    s = if null schedules
+      then Nothing
+      else Just $ foldr1 compareSectionSchedule schedules
+
+formatTodo :: String -> NonEmpty Words -> Maybe OrgDateTime -> String
+formatTodo p title (Just time) =
+  formatTodo p title Nothing
+  ++ " <" ++ (prettyDateTime time) ++ ">"
+
+formatTodo p title Nothing =
+  "[" ++ p ++ "] "
+  ++ (shorten 20 $ unwords $ map (T.unpack . prettyWords) $ toList title)
+
+closestTodosPP :: ClosestTodos -> Maybe String
+closestTodosPP (ClosestTodos Nothing Nothing) = Nothing
+closestTodosPP (ClosestTodos (Just dl) Nothing) =
+  Just $ formatTodo "D" (sectionHeading dl) (sectionDeadline dl)
+
+closestTodosPP (ClosestTodos Nothing (Just sh)) =
+  Just $ formatTodo "S" (sectionHeading sh) (sectionScheduled sh)
+
+closestTodosPP t@(ClosestTodos dl sh) =
+  Just
+  $ unwords
+  $ catMaybes [ closestTodosPP t { todoScheduled = Nothing }
+              , closestTodosPP t { todoDeadline = Nothing }]
+
+-- these functions are "borrowed" from org-mode
+prettyDateTime :: OrgDateTime -> String
+prettyDateTime (OrgDateTime d w t rep del) =
+  unwords $ catMaybes [ Just d', Just w', prettyTime <$> t ]
+  where
+    d' :: String
+    d' = showGregorian d
+
+    w' :: String
+    w' = take 3 $ show w
+
+prettyTime :: OrgTime -> String
+prettyTime (OrgTime s me) = tod s ++ maybe "" (\e -> "-" ++ tod e) me
+  where
+    tod :: TimeOfDay -> String
+    tod (TimeOfDay h m _) = printf "%02d:%02d" h m

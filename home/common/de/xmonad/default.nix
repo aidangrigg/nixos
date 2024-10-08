@@ -7,6 +7,7 @@
     config = ./xmonad.hs;
     extraPackages = hpkgs: [
       hpkgs.xmobar
+      hpkgs.org-mode
     ];
   };
   
@@ -14,9 +15,9 @@
     enable = true;
     extraConfig = ''
 Config { overrideRedirect = False
-       , font     = "Roboto Mono"
+       , font     = "Roboto Mono 10"
        , bgColor  =     "#191816"
-       , fgColor  =     "#262320" 
+       , fgColor  =     "#FFFFFF" 
        , position = TopH 25
        , commands = [
          -- cpu activity monitor
