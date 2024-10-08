@@ -66,43 +66,29 @@ myLayout = tiled ||| Full
   where
     tiled    = Tall nmaster delta ratio
     nmaster  = 1      -- Default number of windows in the master pane
-    ratio    = 2/3    -- Default proportion of screen occupied by master pane
+    ratio    = 3/4    -- Default proportion of screen occupied by master pane
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
 
 
 myXmobarPP :: PP
 myXmobarPP = def
-    { ppSep             = magenta " • "
-    , ppTitleSanitize   = xmobarStrip
-    , ppCurrent         = white . wrap " " "" . xmobarBorder "Bottom" "#8be9fd" 2
-    , ppHidden          = white . wrap " " ""
-    , ppHiddenNoWindows = (\_ -> "")
-    , ppUrgent          = red . wrap (yellow "!") (yellow "!")
-    , ppLayout          = white
-    , ppOrder           = \[w,l,_,o] -> [w,l,o]
+    { ppSep             = " // "
+    , ppCurrent         = fg . wrap "[" "]"
+    , ppHidden          = fg . wrap " " " "
+    , ppLayout          = fg
+    , ppOrder           = \[w,l,_,o] -> [w,l,fg o]
     , ppExtras          = [orgTodoLogger]
     }
   where
-    formatFocused   = wrap (white    "[") (white    "]") . magenta . ppWindow
-    formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . blue    . ppWindow
-
     orgTodoLogger :: X (Maybe String)
     orgTodoLogger = do
       f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
       return $ (org f) >>= (closestTodosPP . closestTodos)
 
-    -- | Windows should have *some* title, which should not not exceed a
-    -- sane length.
-    ppWindow :: String -> String
-    ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 10
-
-    blue, lowWhite, magenta, red, white, yellow :: String -> String
-    magenta  = xmobarColor "#ff79c6" ""
-    blue     = xmobarColor "#bd93f9" ""
-    white    = xmobarColor "#f8f8f2" ""
-    yellow   = xmobarColor "#f1fa8c" ""
-    red      = xmobarColor "#ff5555" ""
-    lowWhite = xmobarColor "#bbbbbb" ""
+    fg, mg, bg :: String -> String
+    fg = xmobarColor "#ffffff" ""
+    mg = xmobarColor "#555555" ""
+    bg = xmobarColor "#222222" ""
 
 ------------------------------------------------------------------------------------
 -- ORG TODOS                                                                      --
@@ -118,9 +104,17 @@ getTodosWithTimestamp OrgDoc{docSections = secs} =
   (deadlines, scheduled)
   where
     sections = flattenSections secs
-    deadlines = filter (isJust . sectionDeadline) sections
-    scheduled = filter (isJust . sectionScheduled) sections
+    todos = filter (isTodo . sectionTodo) sections
+    deadlines = filter (isJust . sectionDeadline) todos
+    scheduled = filter (isJust . sectionScheduled) todos
 
+    isTodo :: Maybe Todo -> Bool
+    isTodo Nothing = False
+    isTodo (Just t) =
+      case t of
+        TODO -> True
+        DONE -> False
+        
     flattenSections :: [Section] -> [Section]
     flattenSections [] = []
     flattenSections (x:xs) =
