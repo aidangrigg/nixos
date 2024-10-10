@@ -13,6 +13,7 @@
     ./common/de/xmonad
     ./common/cli
     ./common/syncthing
+    ./common/productivity
   ];
 
   nixpkgs = {
