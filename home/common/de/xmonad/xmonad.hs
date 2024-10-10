@@ -1,14 +1,14 @@
 import           XMonad
 import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.EwmhDesktops
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.StatusBar
 import           XMonad.Hooks.StatusBar.PP
-import           XMonad.Hooks.EwmhDesktops
-import           XMonad.Layout.Spacing
 import           XMonad.Layout.NoBorders
-import           XMonad.Layout.Magnifier
-import           XMonad.Layout.ThreeColumns
+import           XMonad.Layout.Renamed
+import           XMonad.Layout.Spacing
+import           XMonad.Layout.Tabbed
 import           XMonad.Util.EZConfig
 import           XMonad.Util.Loggers
 import           XMonad.Util.Run (spawnPipe)
@@ -40,9 +40,11 @@ main = do
       toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
       toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
 
+noNameLayout = named ""
+
 myConfig = def
     { modMask    = mod4Mask      -- Rebind Mod to the Super key
-    , layoutHook = smartSpacing 5 $ smartBorders $ myLayout      -- Use custom layouts
+    , layoutHook = smartBorders $ myLayout      -- Use custom layouts
     , manageHook = myManageHook  -- Match on certain windows
     , normalBorderColor = "#111111"
     , focusedBorderColor = "#FFFFFF"
@@ -62,21 +64,27 @@ myManageHook = composeAll
     , isDialog            --> doFloat
     ]
 
-myLayout = tiled ||| Full
+
+myLayout = (named "tiled" $ smartSpacing 5 $ tiled) ||| (named "tabbed" $ tabbed shrinkText myTabConfig)
   where
     tiled    = Tall nmaster delta ratio
     nmaster  = 1      -- Default number of windows in the master pane
-    ratio    = 3/4    -- Default proportion of screen occupied by master pane
+    ratio    = 2/3    -- Default proportion of screen occupied by master pane
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
-
+    myTabConfig = def { activeColor = fg
+                      , inactiveColor = bg
+                      , activeTextColor = bg
+                      , inactiveTextColor = fg
+                      , activeBorderColor = fg
+                      , inactiveBorderColor = bg}
 
 myXmobarPP :: PP
 myXmobarPP = def
     { ppSep             = " // "
-    , ppCurrent         = fg . wrap "[" "]"
-    , ppHidden          = fg . wrap " " " "
-    , ppLayout          = fg
-    , ppOrder           = \[w,l,_,o] -> [w,l,fg o]
+    , ppCurrent         = (ppColor fg) . wrap "[" "]"
+    , ppHidden          = (ppColor fg) . wrap " " " "
+    , ppLayout          = (ppColor fg)
+    , ppOrder           = \[w,l,_,o] -> [w,l, (ppColor fg) o]
     , ppExtras          = [orgTodoLogger]
     }
   where
@@ -85,10 +93,13 @@ myXmobarPP = def
       f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
       return $ (org f) >>= (closestTodosPP . closestTodos)
 
-    fg, mg, bg :: String -> String
-    fg = xmobarColor "#ffffff" ""
-    mg = xmobarColor "#555555" ""
-    bg = xmobarColor "#222222" ""
+    ppColor :: String -> String -> String
+    ppColor c = xmobarColor c ""
+
+fg, mg, bg :: String
+fg = "#ffffff"
+mg = "#555555"
+bg = "#222222"
 
 ------------------------------------------------------------------------------------
 -- ORG TODOS                                                                      --
