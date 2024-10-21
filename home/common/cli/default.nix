@@ -11,5 +11,6 @@
     wget
     vim
     xclip
+    tmux
   ];
 }

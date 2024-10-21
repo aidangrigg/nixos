@@ -12,6 +12,8 @@ import           XMonad.Layout.Tabbed
 import           XMonad.Util.EZConfig
 import           XMonad.Util.Loggers
 import           XMonad.Util.Run (spawnPipe)
+import           XMonad.Util.SpawnOnce (spawnOnce)
+
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -48,6 +50,7 @@ myConfig = def
     , manageHook = myManageHook  -- Match on certain windows
     , normalBorderColor = "#111111"
     , focusedBorderColor = "#FFFFFF"
+    , startupHook = myStartupHook
     }
   `additionalKeysP`
     [ ("M-b"        ,       spawn Main.browser)
@@ -56,31 +59,39 @@ myConfig = def
     , ("M-S-e"      ,       spawn Main.emacs)
     , ("M-d"        ,       spawn Main.launcher)
     , ("M-q"        ,       spawn "xmonad --restart")
+    , ("M-s"        ,       spawn "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-S-s"      ,       spawn "peek")
     ]
 
 myManageHook :: ManageHook
 myManageHook = composeAll
     [ className =? "Gimp" --> doFloat
+    , className =? "Peek" --> doFloat
     , isDialog            --> doFloat
     ]
 
+myStartupHook = do
+  spawnOnce "xrandr -r 165"
 
-myLayout = (named "tiled" $ smartSpacing 5 $ tiled) ||| (named "tabbed" $ tabbed shrinkText myTabConfig)
+myLayout = (named "2/3 tiled" $ smartSpacing 5 $ Tall 1 delta (2/3))
+  ||| (named "1/2 tiled" $ smartSpacing 5 $ Tall 1 delta (1/2))
+  ||| (named "tabbed" $ tabbed shrinkText myTabConfig)
   where
-    tiled    = Tall nmaster delta ratio
-    nmaster  = 1      -- Default number of windows in the master pane
-    ratio    = 2/3    -- Default proportion of screen occupied by master pane
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
     myTabConfig = def { activeColor = fg
                       , inactiveColor = bg
                       , activeTextColor = bg
                       , inactiveTextColor = fg
                       , activeBorderColor = fg
-                      , inactiveBorderColor = bg}
+                      , inactiveBorderColor = bg
+                      , fontName = "GohuFont"
+                      , decoHeight = 20}
+
+sep = xmobarColor mg "" " // "
 
 myXmobarPP :: PP
 myXmobarPP = def
-    { ppSep             = " // "
+    { ppSep             = sep
     , ppCurrent         = (ppColor fg) . wrap "[" "]"
     , ppHidden          = (ppColor fg) . wrap " " " "
     , ppLayout          = (ppColor fg)
@@ -125,7 +136,7 @@ getTodosWithTimestamp OrgDoc{docSections = secs} =
       case t of
         TODO -> True
         DONE -> False
-        
+
     flattenSections :: [Section] -> [Section]
     flattenSections [] = []
     flattenSections (x:xs) =
@@ -176,6 +187,7 @@ closestTodosPP t@(ClosestTodos dl sh) =
   Just
   $ unwords
   $ catMaybes [ closestTodosPP t { todoScheduled = Nothing }
+              , Just sep
               , closestTodosPP t { todoDeadline = Nothing }]
 
 -- these functions are "borrowed" from org-mode

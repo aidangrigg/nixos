@@ -32,11 +32,22 @@
   home.packages = with pkgs; [ 
     alacritty
     rofi
+
+    # browsers
     firefox
+    chromium
+    
     pavucontrol
     xmobar
     vlc
+    peek
+
+    quartus-prime-lite
+    inkscape
+    gimp
   ];
+
+  
 
   # Enable home-manager and git
   programs.home-manager.enable = true;

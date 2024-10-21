@@ -73,8 +73,21 @@
   };
 
   time.timeZone = "Australia/Sydney";
+  time.hardwareClockInLocalTime = true;
 
-  
+  # steam
+  programs.steam.enable = true;
+
+  # flatpak
+  services.flatpak.enable = true;
+  xdg.portal = {
+    enable = true;
+    config.common.default = "*";
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
+  };
+
   i18n = {
     defaultLocale = "en_AU.UTF-8";
     extraLocaleSettings = {
@@ -91,6 +104,8 @@
     };
   };
 
+  programs.adb.enable = true;
+
   users.users = {
     aidan = {
       isNormalUser = true;
@@ -98,7 +113,7 @@
         # TODO: Add your SSH public key(s) here, if you plan on using SSH to connect
       ];
       # TODO: Be sure to add any other groups you need (such as networkmanager, audio, docker, etc)
-      extraGroups = ["wheel" "networkmanager"];
+      extraGroups = ["wheel" "networkmanager" "adbusers" ];
     };
   };
 
@@ -112,25 +127,36 @@
 
     autoRepeatDelay = 250;
     autoRepeatInterval = 30;
-    
+
     displayManager = {
-      defaultSession = "none+xmonad";
       lightdm.enable = true;
     };
     windowManager.xmonad = {
       enable = true;
       enableContribAndExtras = true;
-      extraPackages = hpkgs: [
-        hpkgs.xmobar
-      ];
     };
   };
+
+  services.displayManager.defaultSession = "none+xmonad";
 
   services.libinput.mouse.accelProfile = "flat";
 
   programs.git = {
     enable = true;
     prompt.enable = true;
+  };
+
+  # udev rules
+  services.udev = {
+    enable = true;
+    packages = with pkgs; [
+      usb-blaster-udev-rules
+    ];
+  };
+
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 80 443 8081 ];
   };
 
   # This setups a SSH server. Very important if you're setting up a headless system.

@@ -1,5 +1,15 @@
-{
+{ pkgs, ... }: {
   imports = [./../common];
+
+  home.packages = with pkgs; [
+    # screenshot util
+    maim # png
+    peek # gif/mp4
+
+    # background
+    feh
+    
+  ];
 
   xsession.windowManager.xmonad = {
     enable = true;
@@ -10,12 +20,12 @@
       hpkgs.org-mode
     ];
   };
-  
+
   programs.xmobar = {
     enable = true;
     extraConfig = ''
 Config { overrideRedirect = False
-       , font     = "Roboto Mono 10"
+       , font     = "GohuFont 10"
        , bgColor  =     "#222222"
        , fgColor  =     "#555555" 
        , position = TopH 25
