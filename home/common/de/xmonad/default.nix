@@ -21,6 +21,11 @@
     ];
   };
 
+  services.picom = {
+    enable = true;
+    vSync = true; # all my homies hate screen tearing
+  };
+
   programs.xmobar = {
     enable = true;
     extraConfig = ''

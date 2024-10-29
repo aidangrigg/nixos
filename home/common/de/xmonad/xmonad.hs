@@ -10,10 +10,11 @@ import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.Tabbed
 import           XMonad.Util.EZConfig
+import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.Loggers
+import           XMonad.Util.PureX (toX)
 import           XMonad.Util.Run (spawnPipe)
 import           XMonad.Util.SpawnOnce (spawnOnce)
-
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -31,6 +32,13 @@ browser  = "firefox"
 launcher = "rofi -show drun"
 emacs = "emacsclient -c"
 
+data State = State { brightness :: Float
+                   }
+
+instance ExtensionClass State where
+  initialValue = State { brightness = 1.0
+                       }
+
 main :: IO ()
 main = do
   xmonad
@@ -43,6 +51,14 @@ main = do
       toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
 
 noNameLayout = named ""
+
+adjustBrightness :: Float -> X ()
+adjustBrightness delta = do
+    s <- XS.get
+    let newBrightness = brightness s + delta
+    let clampedBrightness = max 0 (min 1.0 newBrightness)
+    XS.put $ s { brightness = clampedBrightness }
+    spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
 
 myConfig = def
     { modMask    = mod4Mask      -- Rebind Mod to the Super key
@@ -61,6 +77,8 @@ myConfig = def
     , ("M-q"        ,       spawn "xmonad --restart")
     , ("M-s"        ,       spawn "maim -s | xclip -selection clipboard -t image/png")
     , ("M-S-s"      ,       spawn "peek")
+    , ("M-<U>"      ,       adjustBrightness 0.1)
+    , ("M-<D>"      ,       adjustBrightness (-0.1))
     ]
 
 myManageHook :: ManageHook
@@ -71,7 +89,9 @@ myManageHook = composeAll
     ]
 
 myStartupHook = do
-  spawnOnce "xrandr -r 165"
+  spawnOnce "xrandr -r 165" -- refresh rate
+  spawnOnce "feh --bg-scale /home/aidan/images/background/wave-Dark.jpg" -- background
+  spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
 
 myLayout = (named "2/3 tiled" $ smartSpacing 5 $ Tall 1 delta (2/3))
   ||| (named "1/2 tiled" $ smartSpacing 5 $ Tall 1 delta (1/2))

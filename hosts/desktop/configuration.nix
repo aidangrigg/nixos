@@ -138,6 +138,7 @@
   };
 
   services.displayManager.defaultSession = "none+xmonad";
+  programs.dconf.enable = true;
 
   services.libinput.mouse.accelProfile = "flat";
 
@@ -153,6 +154,8 @@
       usb-blaster-udev-rules
     ];
   };
+
+  services.gvfs.enable = true;
 
   networking.firewall = {
     enable = true;

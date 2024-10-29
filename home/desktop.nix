@@ -29,6 +29,28 @@
     homeDirectory = "/home/aidan";
   };
 
+  home.pointerCursor = {
+    name = "Quintom_Ink";
+    package = pkgs.quintom-cursor-theme;
+    gtk.enable = true;
+    x11.enable = true;
+    size = 12;
+  };
+
+  gtk = {
+    enable = true;
+
+    iconTheme = {
+      package = pkgs.vimix-icon-theme;
+      name = "Vimix-White";
+    };
+
+    theme = {
+      package = pkgs.graphite-gtk-theme;
+      name = "Graphite-Dark";
+    };
+  };
+
   home.packages = with pkgs; [ 
     alacritty
     rofi
@@ -45,9 +67,12 @@
     quartus-prime-lite
     inkscape
     gimp
+
+    cinnamon.nemo
   ];
 
-  
+  programs.bashmount.enable = true;
+  programs.obs-studio.enable = true;
 
   # Enable home-manager and git
   programs.home-manager.enable = true;
