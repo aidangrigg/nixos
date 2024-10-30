@@ -2,6 +2,7 @@
 # Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
 {
   inputs,
+  outputs,
   lib,
   config,
   pkgs,
@@ -18,7 +19,8 @@
 
   nixpkgs = {
     overlays = [
-    ];
+      outputs.overlays.unstable-packages
+    ] ++ inputs.xmonad-contrib.overlays;
     config = {
       allowUnfree = true;
     };
@@ -69,6 +71,9 @@
     gimp
 
     cinnamon.nemo
+
+    ghc
+    ghcid
   ];
 
   programs.bashmount.enable = true;

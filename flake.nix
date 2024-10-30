@@ -4,6 +4,9 @@
   inputs = {
     # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    xmonad-contrib.url = github:xmonad/xmonad-contrib;
 
     # Home manager
     home-manager.url = "github:nix-community/home-manager/release-24.05";
@@ -14,17 +17,21 @@
     self,
     nixpkgs,
     home-manager,
+    xmonad-contrib,
     ...
   } @ inputs: let
     inherit (self) outputs;
   in {
+    overlays = import ./overlays {inherit inputs;};
     # NixOS configuration entrypoint
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
       desktop = nixpkgs.lib.nixosSystem {
         specialArgs = {inherit inputs outputs;};
         # > Our main nixos configuration file <
-        modules = [./hosts/desktop/configuration.nix];
+        modules = [
+          ./hosts/desktop/configuration.nix
+        ];
       };
     };
 

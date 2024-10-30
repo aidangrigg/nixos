@@ -133,7 +133,7 @@
     };
     windowManager.xmonad = {
       enable = true;
-      enableContribAndExtras = true;
+    #   enableContribAndExtras = true;
     };
   };
 

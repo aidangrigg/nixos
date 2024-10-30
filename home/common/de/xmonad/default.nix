@@ -13,9 +13,9 @@
 
   xsession.windowManager.xmonad = {
     enable = true;
-    enableContribAndExtras = true;
     config = ./xmonad.hs;
     extraPackages = hpkgs: [
+      hpkgs.xmonad-contrib
       hpkgs.xmobar
       hpkgs.org-mode
     ];

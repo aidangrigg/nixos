@@ -11,10 +11,11 @@ import           XMonad.Layout.Spacing
 import           XMonad.Layout.Tabbed
 import           XMonad.Util.EZConfig
 import qualified XMonad.Util.ExtensibleState as XS
+import           XMonad.Util.Hacks (fixSteamFlicker)
 import           XMonad.Util.Loggers
 import           XMonad.Util.PureX (toX)
 import           XMonad.Util.Run (spawnPipe)
-import           XMonad.Util.SpawnOnce (spawnOnce)
+import           XMonad.Util.SpawnOnce
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -31,6 +32,7 @@ terminal = "alacritty"
 browser  = "firefox"
 launcher = "rofi -show drun"
 emacs = "emacsclient -c"
+fileBrowser = "nemo"
 
 data State = State { brightness :: Float
                    }
@@ -60,6 +62,7 @@ adjustBrightness delta = do
     XS.put $ s { brightness = clampedBrightness }
     spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
 
+
 myConfig = def
     { modMask    = mod4Mask      -- Rebind Mod to the Super key
     , layoutHook = smartBorders $ myLayout      -- Use custom layouts
@@ -67,6 +70,7 @@ myConfig = def
     , normalBorderColor = "#111111"
     , focusedBorderColor = "#FFFFFF"
     , startupHook = myStartupHook
+    , handleEventHook = fixSteamFlicker
     }
   `additionalKeysP`
     [ ("M-b"        ,       spawn Main.browser)
@@ -79,6 +83,7 @@ myConfig = def
     , ("M-S-s"      ,       spawn "peek")
     , ("M-<U>"      ,       adjustBrightness 0.1)
     , ("M-<D>"      ,       adjustBrightness (-0.1))
+    , ("M-e"        ,       spawn fileBrowser)
     ]
 
 myManageHook :: ManageHook
@@ -95,7 +100,7 @@ myStartupHook = do
 
 myLayout = (named "2/3 tiled" $ smartSpacing 5 $ Tall 1 delta (2/3))
   ||| (named "1/2 tiled" $ smartSpacing 5 $ Tall 1 delta (1/2))
-  ||| (named "tabbed" $ tabbed shrinkText myTabConfig)
+  ||| (named "tabbed" $ tabbedBottom shrinkText myTabConfig)
   where
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
     myTabConfig = def { activeColor = fg
