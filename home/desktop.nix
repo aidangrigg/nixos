@@ -15,6 +15,7 @@
     ./common/cli
     ./common/syncthing
     ./common/productivity
+    ./common/modelling
   ];
 
   nixpkgs = {
