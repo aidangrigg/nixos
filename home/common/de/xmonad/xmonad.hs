@@ -60,6 +60,7 @@ adjustBrightness delta = do
     let newBrightness = brightness s + delta
     let clampedBrightness = max 0 (min 1.0 newBrightness)
     XS.put $ s { brightness = clampedBrightness }
+    spawn $ "xrandr --output DP-1 --brightness " ++ show clampedBrightness
     spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
 
 
