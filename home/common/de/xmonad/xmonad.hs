@@ -16,6 +16,7 @@ import           XMonad.Util.Loggers
 import           XMonad.Util.PureX (toX)
 import           XMonad.Util.Run (spawnPipe)
 import           XMonad.Util.SpawnOnce
+import           XMonad.Hooks.TaffybarPagerHints (pagerHints)
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -42,15 +43,7 @@ instance ExtensionClass State where
                        }
 
 main :: IO ()
-main = do
-  xmonad
-    . ewmhFullscreen
-    . ewmh
-    . withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) toggleStrutsKey
-    $ myConfig
-    where
-      toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
-      toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
+main = xmonad $ docks $ ewmh $ pagerHints $ myConfig
 
 noNameLayout = named ""
 
@@ -63,12 +56,16 @@ adjustBrightness delta = do
     spawn $ "xrandr --output DP-1 --brightness " ++ show clampedBrightness
     spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
 
+    spawn $ "notify-send -h int:value:"
+      ++ show (clampedBrightness * 100)
+      ++ " \"Brightness\""
+
 
 myConfig = def
-    { modMask    = mod4Mask      -- Rebind Mod to the Super key
-    , layoutHook = smartBorders $ myLayout      -- Use custom layouts
-    , manageHook = myManageHook  -- Match on certain windows
-    , normalBorderColor = "#111111"
+    { modMask    = mod4Mask
+    , layoutHook = avoidStruts $ smartBorders $ myLayout
+    , manageHook = myManageHook
+    , normalBorderColor = "#222222"
     , focusedBorderColor = "#FFFFFF"
     , startupHook = myStartupHook
     , handleEventHook = fixSteamFlicker
@@ -98,9 +95,12 @@ myStartupHook = do
   spawnOnce "xrandr -r 165" -- refresh rate
   spawnOnce "feh --bg-scale /home/aidan/images/background/wave-Dark.jpg" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
+  
+  spawnOnce "status-notifier-watcher"
+  spawnOnce "taffybar"
 
-myLayout = (named "2/3 tiled" $ smartSpacing 5 $ Tall 1 delta (2/3))
-  ||| (named "1/2 tiled" $ smartSpacing 5 $ Tall 1 delta (1/2))
+myLayout = (named "1/2 tiled" $ Tall 1 delta (1/2))
+  ||| (named "2/3 tiled" $ Tall 1 delta (2/3))
   ||| (named "tabbed" $ tabbedBottom shrinkText myTabConfig)
   where
     delta    = 3/100  -- Percent of screen to increment by when resizing panes

@@ -8,5 +8,6 @@
     hunspell
     hunspellDicts.en_AU
     pdfpc
+    libreoffice
   ];
 }

@@ -1,6 +1,7 @@
 { pkgs, ... }: {
   imports = [
     ./bash.nix
+    ./alacritty.nix
   ];
   home.packages = with pkgs; [
     ripgrep

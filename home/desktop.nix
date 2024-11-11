@@ -49,15 +49,12 @@
     };
 
     theme = {
-      package = pkgs.graphite-gtk-theme;
-      name = "Graphite-Dark";
+      package = pkgs.arc-theme;
+      name = "Arc-Dark";
     };
   };
 
   home.packages = with pkgs; [ 
-    alacritty
-    rofi
-
     # browsers
     firefox
     chromium
