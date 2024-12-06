@@ -31,6 +31,8 @@
   services.picom = {
     enable = true;
     vSync = true; # all my homies hate screen tearing
+    inactiveOpacity = 0.9;
+    activeOpacity = 1;
   };
 
   services.dunst = {

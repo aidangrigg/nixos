@@ -64,14 +64,15 @@
     vlc
     peek
 
-    quartus-prime-lite
     inkscape
     gimp
 
-    cinnamon.nemo
+    nemo
 
     ghc
     ghcid
+
+    mangohud
   ];
 
   programs.bashmount.enable = true;

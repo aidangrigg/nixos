@@ -56,14 +56,14 @@ adjustBrightness delta = do
     spawn $ "xrandr --output DP-1 --brightness " ++ show clampedBrightness
     spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
 
-    spawn $ "notify-send -h int:value:"
+    spawn $ "notify-send -t 1000 -h int:value:"
       ++ show (clampedBrightness * 100)
       ++ " \"Brightness\""
 
 
 myConfig = def
     { modMask    = mod4Mask
-    , layoutHook = avoidStruts $ smartBorders $ myLayout
+    , layoutHook = avoidStruts $ smartSpacing 5 $ lessBorders Never $ noBorders $ myLayout
     , manageHook = myManageHook
     , normalBorderColor = "#222222"
     , focusedBorderColor = "#FFFFFF"
@@ -82,6 +82,7 @@ myConfig = def
     , ("M-<U>"      ,       adjustBrightness 0.1)
     , ("M-<D>"      ,       adjustBrightness (-0.1))
     , ("M-e"        ,       spawn fileBrowser)
+    , ("M-f"        ,       spawn "polybar-msg cmd toggle")
     ]
 
 myManageHook :: ManageHook
@@ -93,11 +94,9 @@ myManageHook = composeAll
 
 myStartupHook = do
   spawnOnce "xrandr -r 165" -- refresh rate
-  spawnOnce "feh --bg-scale /home/aidan/images/background/wave-Dark.jpg" -- background
+  spawnOnce "feh --bg-scale /home/aidan/images/background/cloud.png" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
-  
-  spawnOnce "status-notifier-watcher"
-  spawnOnce "taffybar"
+  spawnOnce "systemctl --user restart polybar"
 
 myLayout = (named "1/2 tiled" $ Tall 1 delta (1/2))
   ||| (named "2/3 tiled" $ Tall 1 delta (2/3))
@@ -116,19 +115,20 @@ myLayout = (named "1/2 tiled" $ Tall 1 delta (1/2))
 sep = xmobarColor mg "" " // "
 
 myXmobarPP :: PP
+
 myXmobarPP = def
     { ppSep             = sep
     , ppCurrent         = (ppColor fg) . wrap "[" "]"
     , ppHidden          = (ppColor fg) . wrap " " " "
     , ppLayout          = (ppColor fg)
-    , ppOrder           = \[w,l,_,o] -> [w,l, (ppColor fg) o]
-    , ppExtras          = [orgTodoLogger]
+    , ppOrder           = \[w,l,_] -> [w,l]
+    -- , ppExtras          = [orgTodoLogger]
     }
   where
-    orgTodoLogger :: X (Maybe String)
-    orgTodoLogger = do
-      f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
-      return $ (org f) >>= (closestTodosPP . closestTodos)
+    -- orgTodoLogger :: X (Maybe String)
+    -- orgTodoLogger = do
+    --   f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
+    --   return $ (org f) >>= (closestTodosPP . closestTodos)
 
     ppColor :: String -> String -> String
     ppColor c = xmobarColor c ""

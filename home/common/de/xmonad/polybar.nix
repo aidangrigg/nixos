@@ -15,28 +15,29 @@ in {
         width = "100%";
         padding = 1;
         height = 32;
-        
+
+        module-margin = 1;
+        enable-ipc = true;
         fixed-center = true;
         modules-left = "xworkspaces";
         modules-center = "date";
-        modules-right = "tray";
-        font-0 = "GohuFont:size=12;2";
+        modules-right = "tray memory cpu";
+        font-0 = "Roboto Mono:size=10;2";
         background = colours.background;
         foreground = colours.foreground;
       };
+      
       "module/tray" = {
         type = "internal/tray";
         tray-size = "45%";
       };
-
       "module/date" = {
         type = "internal/date";
         interval = 1.0;
-        label = "%date% | %time%";
-        date = "%Y-%m-%d%";
-        time = "%H:%M";
+        label = "%date% %time%";
+        date = "%Y-%m-%d (%a)";
+        time = "%r";
       };
-
       "module/xworkspaces" = {
         type = "internal/xworkspaces";
 
@@ -47,6 +48,16 @@ in {
         label-occupied-padding = 1;
         label-occupied-foreground = colours.foreground-dim;
         label-empty = "";
+      };
+      "module/cpu" = {
+        type = "internal/cpu";
+        label = "%percentage:3%%";
+        format = "<label>";
+      };
+      "module/memory" = {
+        type = "internal/memory";
+        label = "%gb_used%";
+        format = "<label>";
       };
     };
   };

@@ -1,9 +1,10 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [ 
-    roboto-mono
-    font-awesome
     (nerdfonts.override { fonts = [ "FiraCode" ]; })
+    font-awesome
     gohufont
+    roboto
+    roboto-mono
   ];
   fonts.fontconfig.enable = true;
 }
