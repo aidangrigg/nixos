@@ -24,7 +24,6 @@
     config = ./xmonad.hs;
     extraPackages = hpkgs: [
       hpkgs.xmonad-contrib
-      hpkgs.org-mode
     ];
   };
 

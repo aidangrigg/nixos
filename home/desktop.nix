@@ -60,7 +60,6 @@
     chromium
     
     pavucontrol
-    xmobar
     vlc
     peek
 

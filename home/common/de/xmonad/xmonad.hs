@@ -20,7 +20,7 @@ import           XMonad.Hooks.TaffybarPagerHints (pagerHints)
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
-import           Data.Org
+-- import           Data.Org
 import           Data.Time (Day, TimeOfDay(..), fromGregorian, showGregorian)
 import           Text.Printf (printf)
 
@@ -97,6 +97,8 @@ myStartupHook = do
   spawnOnce "feh --bg-scale /home/aidan/images/background/cloud.png" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
   spawnOnce "systemctl --user restart polybar"
+  -- Fixes `xdg-open`. See here: https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+  spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
 
 myLayout = (named "1/2 tiled" $ Tall 1 delta (1/2))
   ||| (named "2/3 tiled" $ Tall 1 delta (2/3))
@@ -142,93 +144,93 @@ bg = "#222222"
 -- ORG TODOS                                                                      --
 ------------------------------------------------------------------------------------
 
-data ClosestTodos = ClosestTodos
-  { todoDeadline :: Maybe Section
-  , todoScheduled :: Maybe Section
-  }
+-- data ClosestTodos = ClosestTodos
+--   { todoDeadline :: Maybe Section
+--   , todoScheduled :: Maybe Section
+--   }
 
-getTodosWithTimestamp :: OrgDoc -> ([Section], [Section])
-getTodosWithTimestamp OrgDoc{docSections = secs} =
-  (deadlines, scheduled)
-  where
-    sections = flattenSections secs
-    todos = filter (isTodo . sectionTodo) sections
-    deadlines = filter (isJust . sectionDeadline) todos
-    scheduled = filter (isJust . sectionScheduled) todos
+-- getTodosWithTimestamp :: OrgDoc -> ([Section], [Section])
+-- getTodosWithTimestamp OrgDoc{docSections = secs} =
+--   (deadlines, scheduled)
+--   where
+--     sections = flattenSections secs
+--     todos = filter (isTodo . sectionTodo) sections
+--     deadlines = filter (isJust . sectionDeadline) todos
+--     scheduled = filter (isJust . sectionScheduled) todos
 
-    isTodo :: Maybe Todo -> Bool
-    isTodo Nothing = False
-    isTodo (Just t) =
-      case t of
-        TODO -> True
-        DONE -> False
+--     isTodo :: Maybe Todo -> Bool
+--     isTodo Nothing = False
+--     isTodo (Just t) =
+--       case t of
+--         TODO -> True
+--         DONE -> False
 
-    flattenSections :: [Section] -> [Section]
-    flattenSections [] = []
-    flattenSections (x:xs) =
-      [x] ++ flattenSections ((docSections . sectionDoc) x) ++ flattenSections xs
+--     flattenSections :: [Section] -> [Section]
+--     flattenSections [] = []
+--     flattenSections (x:xs) =
+--       [x] ++ flattenSections ((docSections . sectionDoc) x) ++ flattenSections xs
 
-closestTodos :: OrgFile -> ClosestTodos
-closestTodos (OrgFile _ doc) =
-  (ClosestTodos d s)
-  where
-    (deadlines, schedules) = getTodosWithTimestamp doc
+-- closestTodos :: OrgFile -> ClosestTodos
+-- closestTodos (OrgFile _ doc) =
+--   (ClosestTodos d s)
+--   where
+--     (deadlines, schedules) = getTodosWithTimestamp doc
 
-    compareSectionDeadline :: Section -> Section -> Section
-    compareSectionDeadline s1 s2 =
-      if (sectionDeadline s1) < (sectionDeadline s2)
-      then s1 else s2
+--     compareSectionDeadline :: Section -> Section -> Section
+--     compareSectionDeadline s1 s2 =
+--       if (sectionDeadline s1) < (sectionDeadline s2)
+--       then s1 else s2
 
-    compareSectionSchedule :: Section -> Section -> Section
-    compareSectionSchedule s1 s2 =
-      if (sectionScheduled s1) < (sectionScheduled s2)
-      then s1 else s2
+--     compareSectionSchedule :: Section -> Section -> Section
+--     compareSectionSchedule s1 s2 =
+--       if (sectionScheduled s1) < (sectionScheduled s2)
+--       then s1 else s2
 
-    d = if null deadlines
-      then Nothing
-      else Just $ foldr1 compareSectionDeadline deadlines
+--     d = if null deadlines
+--       then Nothing
+--       else Just $ foldr1 compareSectionDeadline deadlines
 
-    s = if null schedules
-      then Nothing
-      else Just $ foldr1 compareSectionSchedule schedules
+--     s = if null schedules
+--       then Nothing
+--       else Just $ foldr1 compareSectionSchedule schedules
 
-formatTodo :: String -> NonEmpty Words -> Maybe OrgDateTime -> String
-formatTodo p title (Just time) =
-  formatTodo p title Nothing
-  ++ " <" ++ (prettyDateTime time) ++ ">"
+-- formatTodo :: String -> NonEmpty Words -> Maybe OrgDateTime -> String
+-- formatTodo p title (Just time) =
+--   formatTodo p title Nothing
+--   ++ " <" ++ (prettyDateTime time) ++ ">"
 
-formatTodo p title Nothing =
-  "[" ++ p ++ "] "
-  ++ (shorten 20 $ unwords $ map (T.unpack . prettyWords) $ toList title)
+-- formatTodo p title Nothing =
+--   "[" ++ p ++ "] "
+--   ++ (shorten 20 $ unwords $ map (T.unpack . prettyWords) $ toList title)
 
-closestTodosPP :: ClosestTodos -> Maybe String
-closestTodosPP (ClosestTodos Nothing Nothing) = Nothing
-closestTodosPP (ClosestTodos (Just dl) Nothing) =
-  Just $ formatTodo "D" (sectionHeading dl) (sectionDeadline dl)
+-- closestTodosPP :: ClosestTodos -> Maybe String
+-- closestTodosPP (ClosestTodos Nothing Nothing) = Nothing
+-- closestTodosPP (ClosestTodos (Just dl) Nothing) =
+--   Just $ formatTodo "D" (sectionHeading dl) (sectionDeadline dl)
 
-closestTodosPP (ClosestTodos Nothing (Just sh)) =
-  Just $ formatTodo "S" (sectionHeading sh) (sectionScheduled sh)
+-- closestTodosPP (ClosestTodos Nothing (Just sh)) =
+--   Just $ formatTodo "S" (sectionHeading sh) (sectionScheduled sh)
 
-closestTodosPP t@(ClosestTodos dl sh) =
-  Just
-  $ unwords
-  $ catMaybes [ closestTodosPP t { todoScheduled = Nothing }
-              , Just sep
-              , closestTodosPP t { todoDeadline = Nothing }]
+-- closestTodosPP t@(ClosestTodos dl sh) =
+--   Just
+--   $ unwords
+--   $ catMaybes [ closestTodosPP t { todoScheduled = Nothing }
+--               , Just sep
+--               , closestTodosPP t { todoDeadline = Nothing }]
 
--- these functions are "borrowed" from org-mode
-prettyDateTime :: OrgDateTime -> String
-prettyDateTime (OrgDateTime d w t rep del) =
-  unwords $ catMaybes [ Just d', Just w', prettyTime <$> t ]
-  where
-    d' :: String
-    d' = showGregorian d
+-- -- these functions are "borrowed" from org-mode
+-- prettyDateTime :: OrgDateTime -> String
+-- prettyDateTime (OrgDateTime d w t rep del) =
+--   unwords $ catMaybes [ Just d', Just w', prettyTime <$> t ]
+--   where
+--     d' :: String
+--     d' = showGregorian d
 
-    w' :: String
-    w' = take 3 $ show w
+--     w' :: String
+--     w' = take 3 $ show w
 
-prettyTime :: OrgTime -> String
-prettyTime (OrgTime s me) = tod s ++ maybe "" (\e -> "-" ++ tod e) me
-  where
-    tod :: TimeOfDay -> String
-    tod (TimeOfDay h m _) = printf "%02d:%02d" h m
+-- prettyTime :: OrgTime -> String
+-- prettyTime (OrgTime s me) = tod s ++ maybe "" (\e -> "-" ++ tod e) me
+--   where
+--     tod :: TimeOfDay -> String
+--     tod (TimeOfDay h m _) = printf "%02d:%02d" h m
