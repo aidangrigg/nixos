@@ -71,18 +71,20 @@ myConfig = def
     , handleEventHook = fixSteamFlicker
     }
   `additionalKeysP`
-    [ ("M-b"        ,       spawn Main.browser)
-    , ("M-<Return>" ,       spawn Main.terminal)
-    , ("M-S-q"      ,       kill)
-    , ("M-S-e"      ,       spawn Main.emacs)
-    , ("M-d"        ,       spawn Main.launcher)
-    , ("M-q"        ,       spawn "xmonad --restart")
-    , ("M-s"        ,       spawn "maim -s | xclip -selection clipboard -t image/png")
-    , ("M-S-s"      ,       spawn "peek")
-    , ("M-<U>"      ,       adjustBrightness 0.1)
-    , ("M-<D>"      ,       adjustBrightness (-0.1))
-    , ("M-e"        ,       spawn fileBrowser)
-    , ("M-f"        ,       spawn "polybar-msg cmd toggle")
+    [ ("M-b"                    , spawn Main.browser)
+    , ("M-<Return>"             , spawn Main.terminal)
+    , ("M-S-q"                  , kill)
+    , ("M-S-e"                  , spawn Main.emacs)
+    , ("M-d"                    , spawn Main.launcher)
+    , ("M-q"                    , spawn "xmonad --restart")
+    , ("M-s"                    , spawn "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-S-s"                  , spawn "peek")
+    , ("M-<U>"                  , adjustBrightness 0.1)
+    , ("M-<D>"                  , adjustBrightness (-0.1))
+    , ("M-e"                    , spawn fileBrowser)
+    , ("M-f"                    , spawn "polybar-msg cmd toggle")
+    , ("<XF86AudioRaiseVolume>" , spawn "pamixer -i 5 && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\"")
+    , ("<XF86AudioLowerVolume>" , spawn "pamixer -d 5 && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\"")
     ]
 
 myManageHook :: ManageHook

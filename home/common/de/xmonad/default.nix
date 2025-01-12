@@ -17,6 +17,9 @@
 
     # send notifications from the shell
     libnotify
+
+    # adjust volume
+    pamixer
   ];
 
   xsession.windowManager.xmonad = {
