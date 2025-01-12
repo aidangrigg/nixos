@@ -65,6 +65,8 @@
     networkmanager.enable = true;
   };
 
+  services.ratbagd.enable = true;
+
   # audio
   hardware.pulseaudio.enable = false; # Use Pipewire, the modern sound subsystem
 
@@ -138,7 +140,7 @@
     autoRepeatInterval = 30;
 
     displayManager = {
-      lightdm.enable = true;
+      light
     };
     windowManager.xmonad = {
       enable = true;

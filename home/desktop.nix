@@ -72,6 +72,11 @@
     ghcid
 
     mangohud
+
+    zip
+    unzip
+
+    piper
   ];
 
   programs.bashmount.enable = true;
