@@ -13,5 +13,6 @@
     vim
     xclip
     tmux
+    btop
   ];
 }
