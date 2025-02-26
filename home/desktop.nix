@@ -77,6 +77,8 @@
     unzip
 
     piper
+
+    remmina
   ];
 
   programs.bashmount.enable = true;
