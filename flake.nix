@@ -6,7 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    xmonad-contrib.url = github:xmonad/xmonad-contrib;
+    xmonad-contrib.url = "github:xmonad/xmonad-contrib";
 
     # Home manager
     home-manager.url = "github:nix-community/home-manager/release-24.11";
