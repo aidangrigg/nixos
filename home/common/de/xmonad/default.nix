@@ -34,8 +34,21 @@
   services.picom = {
     enable = true;
     vSync = true; # all my homies hate screen tearing
-    inactiveOpacity = 0.9;
-    activeOpacity = 1;
+    inactiveOpacity = 0.8;
+    activeOpacity = 0.95;
+    opacityRules = [
+      "100:fullscreen"
+    ];
+    backend = "glx";
+    settings = {
+      blur = {
+        method = "dual_kawase";
+        strength = 6;
+      };
+      blur-background-exclude = [
+        "class_g = 'slop'"
+      ];
+    };
   };
 
   services.dunst = {

@@ -79,6 +79,10 @@
     piper
 
     remmina
+
+    xorg.xhost
+
+    qmk
   ];
 
   programs.bashmount.enable = true;

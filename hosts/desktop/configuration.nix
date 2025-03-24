@@ -89,6 +89,9 @@
 
   programs.nix-ld.enable = true;
 
+  # keyboard
+  hardware.keyboard.qmk.enable = true;
+
   # flatpak
   services.flatpak.enable = true;
   xdg.portal = {
@@ -102,7 +105,6 @@
   i18n = {
     defaultLocale = "en_AU.UTF-8";
     extraLocaleSettings = {
-
       LC_ADDRESS = "en_AU.UTF-8";
       LC_IDENTIFICATION = "en_AU.UTF-8";
       LC_MEASUREMENT = "en_AU.UTF-8";
@@ -124,7 +126,7 @@
         # TODO: Add your SSH public key(s) here, if you plan on using SSH to connect
       ];
       # TODO: Be sure to add any other groups you need (such as networkmanager, audio, docker, etc)
-      extraGroups = ["wheel" "networkmanager" "adbusers" "dialout" ];
+      extraGroups = ["wheel" "networkmanager" "adbusers" "dialout" "docker"];
     };
   };
 
@@ -147,6 +149,12 @@
     };
   };
 
+  # screen lock
+  programs.i3lock = {
+    enable = true;
+    package = pkgs.i3lock-fancy-rapid;
+  };
+
   services.displayManager.defaultSession = "none+xmonad";
   programs.dconf.enable = true;
 
@@ -158,11 +166,28 @@
   };
 
   # udev rules
-  services.udev = {
+  services.udev = let
+    ps4-controller-udev-rules = pkgs.writeTextFile {
+      name = "72-ps4touchpad.rules";
+      text = ''
+        # Disable PS4 touchpad acting as mouse
+        # USB
+        ATTRS{name}=="Sony Computer Entertainment Wireless Controller Touchpad", ENV{LIBINPUT_IGNORE_DEVICE}="1"
+      ''; 
+      destination = "/etc/udev/rules.d/72-ps4touchpad.rules";
+    };
+  in {
     enable = true;
     packages = with pkgs; [
       usb-blaster-udev-rules
+      ps4-controller-udev-rules
     ];
+  };
+
+  # virtualisation
+  virtualisation = {
+    containers.enable = true;
+    docker.enable = true;
   };
 
   services.gvfs.enable = true;

@@ -71,7 +71,7 @@ powerPrompt =
   where
     handle "poweroff" = spawn "systemctl poweroff"
     handle "reboot" = spawn "systemctl reboot"
-    handle "suspend" =spawn "systemctl suspend"
+    handle "suspend" = spawn "i3lock 5 3 && systemctl suspend"
     handle _ = spawn "notify-send -t 1000 \"Unknown value\""
 
 adjustBrightness :: Float -> X ()
@@ -124,6 +124,7 @@ myConfig = def
     , ("M-S-p"                  , powerPrompt)
     , ("M-a"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
+    , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
     ]
 
 myManageHook :: ManageHook
