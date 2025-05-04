@@ -9,5 +9,6 @@
     hunspellDicts.en_AU
     pdfpc
     libreoffice
+    zotero
   ];
 }
