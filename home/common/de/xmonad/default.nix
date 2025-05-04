@@ -28,8 +28,8 @@
   xsession.windowManager.xmonad = {
     enable = true;
     config = ./xmonad.hs;
-    extraPackages = hpkgs: [
-      hpkgs.xmonad-contrib
+    extraPackages = haskellPackages: [
+      haskellPackages.xmonad-contrib_0_18_1
     ];
   };
 

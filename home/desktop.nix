@@ -21,7 +21,7 @@
   nixpkgs = {
     overlays = [
       outputs.overlays.unstable-packages
-    ] ++ inputs.xmonad-contrib.overlays;
+    ];
     config = {
       allowUnfree = true;
     };
