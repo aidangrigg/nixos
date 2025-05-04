@@ -6,17 +6,21 @@ import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.StatusBar
 import           XMonad.Hooks.StatusBar.PP
-import           XMonad.Hooks.TaffybarPagerHints (pagerHints)
+import           XMonad.Layout.Grid
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.Tabbed
+import           XMonad.Layout.ToggleLayouts
 import           XMonad.Prompt
 import           XMonad.Prompt.Input
+import qualified XMonad.StackSet as W
+import           XMonad.Util.ClickableWorkspaces
 import           XMonad.Util.EZConfig
 import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.Hacks (fixSteamFlicker)
 import           XMonad.Util.Loggers
+import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.PureX (toX)
 import           XMonad.Util.Run (spawnPipe)
 import           XMonad.Util.SpawnOnce
@@ -39,8 +43,9 @@ emacs = "emacsclient -c"
 fileBrowser = "nemo"
 
 -- Colours
-fg, mg, bg :: String
+fg, fgDim, mg, bg :: String
 fg = "#ffffff"
+fgDim = "#AAAAAA"
 mg = "#555555"
 bg = "#222222"
 
@@ -52,7 +57,15 @@ instance ExtensionClass State where
                        }
 
 main :: IO ()
-main = xmonad $ docks $ ewmhFullscreen $ ewmh $ myConfig
+main = xmonad
+  . withEasySB (statusBarProp "xmobar" (clickablePP myXmobarPP)) toggleStrutsKey
+  . docks
+  . ewmhFullscreen
+  . ewmh
+  $ myConfig
+  where
+    toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
+    toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
 
 myPromptConfig :: XPConfig
 myPromptConfig = def
@@ -61,7 +74,7 @@ myPromptConfig = def
   , promptBorderWidth = 0
   , height = 33
   , position = Top
-  , font = "GohuFont:pixelsize=12"
+  , font = "xft:GohuFont:size=12"
   }
   
 powerPrompt :: X ()
@@ -89,13 +102,12 @@ adjustBrightness delta = do
 
 adjustVolume :: Int -> X ()
 adjustVolume delta
-  | delta > 0 = spawn $ "pamixer -i "
-                ++ show delta ++
-                " && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\""
-  | delta < 0 = spawn $ "pamixer -d "
-                ++ show (abs delta) ++
-                " && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\""
+  | delta > 0 = f $ "pamixer -i " ++ show delta
+  | delta < 0 = f $ "pamixer -d " ++ show (abs delta)
   | otherwise = spawn "notify-send -t 1000 \"Unknown value\""
+  where
+    f = spawn . (++ " && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\"")
+
 
 myConfig = def
     { modMask    = mod4Mask
@@ -118,35 +130,48 @@ myConfig = def
     , ("M-<U>"                  , adjustBrightness 0.1)
     , ("M-<D>"                  , adjustBrightness (-0.1))
     , ("M-e"                    , spawn fileBrowser)
-    , ("M-f"                    , spawn "polybar-msg cmd toggle")
+    , ("M-f"                    , sendMessage (Toggle "full") >> sendMessage ToggleStruts)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
     , ("<XF86AudioLowerVolume>" , adjustVolume (-5))
     , ("M-S-p"                  , powerPrompt)
-    , ("M-a"                    , windows copyToAll) -- Pin to all workspaces
+    , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
+    , ("M-a M-o"                  , namedScratchpadAction myScratchpads "org")
+    , ("M-a M-d"                  , namedScratchpadAction myScratchpads "discord")
     ]
+
+-- Window rules
+rectCentered :: Rational -> W.RationalRect
+rectCentered percentage = W.RationalRect offset offset percentage percentage
+  where
+    offset = (1 - percentage) / 2
+
+myScratchpads =
+  [ NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ customFloating (rectCentered 0.7)
+  , NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list)' -g '140x40'" (title =? "orgmacs") $ customFloating (rectCentered 0.6)
+  ]
 
 myManageHook :: ManageHook
 myManageHook = composeAll
     [ className =? "Gimp" --> doFloat
     , className =? "Peek" --> doFloat
+    , isFullscreen        --> doFullFloat
     , isDialog            --> doFloat
-    ]
+    ] <+> namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
   spawnOnce "xrandr -r 165" -- refresh rate
   spawnOnce "feh --bg-scale /home/aidan/images/background/cloud.png" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
-  spawnOnce "systemctl --user restart polybar"
   -- Fixes `xdg-open`. See here: https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
 
-myLayout = (spacing 5 $ named "1/2 tiled" $ Tall 1 delta (1/2))
-  ||| (spacing 5 $ named "2/3 tiled" $ Tall 1 delta (2/3))
-  ||| (named "tabbed" $ tabbedBottom shrinkText myTabConfig)
+my_half = spacing 3 $ Tall 1 (3/100) (1/2)
+my_twothirds = spacing 3 $ Tall 1 (3/100) (2/3)
+my_grid = spacing 3 Grid
+my_tabbed = spacing 3 $ tabbedBottom shrinkText myTabConfig
   where
-    delta    = 3/100  -- Percent of screen to increment by when resizing panes
     myTabConfig = def { activeColor = fg
                       , inactiveColor = bg
                       , activeTextColor = bg
@@ -156,16 +181,22 @@ myLayout = (spacing 5 $ named "1/2 tiled" $ Tall 1 delta (1/2))
                       , fontName = "GohuFont"
                       , decoHeight = 20}
 
+
+myLayout = toggleLayouts (named "full" Full)
+  (named "1/2" my_half
+   ||| named "2/3" my_twothirds 
+   ||| named "tabbed" my_tabbed
+   ||| named "grid" my_grid)
+
 sep = xmobarColor mg "" " // "
 
 myXmobarPP :: PP
-
 myXmobarPP = def
     { ppSep             = sep
     , ppCurrent         = (ppColor fg) . wrap "[" "]"
-    , ppHidden          = (ppColor fg) . wrap " " " "
+    , ppHidden          = (ppColor fgDim) . wrap " " " "
     , ppLayout          = (ppColor fg)
-    , ppOrder           = \[w,l,_] -> [w,l]
+    , ppOrder           = \[w,_,_] -> [w]
     -- , ppExtras          = [orgTodoLogger]
     }
   where

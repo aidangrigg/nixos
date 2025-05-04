@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   imports = [
     ./../common
-    ./polybar.nix
+    # ./polybar.nix
   ];
 
   home.packages = with pkgs; [
@@ -21,6 +21,8 @@
     # adjust volume
     pamixer
     pulseaudio
+
+    xdotool
   ];
 
   xsession.windowManager.xmonad = {
@@ -34,21 +36,39 @@
   services.picom = {
     enable = true;
     vSync = true; # all my homies hate screen tearing
-    inactiveOpacity = 0.8;
-    activeOpacity = 0.95;
-    opacityRules = [
-      "100:fullscreen"
-    ];
-    backend = "glx";
-    settings = {
-      blur = {
-        method = "dual_kawase";
-        strength = 6;
-      };
-      blur-background-exclude = [
-        "class_g = 'slop'"
-      ];
-    };
+    # inactiveOpacity = 0.8;
+    # activeOpacity = 0.95;
+    # opacityRules = [
+    #   "100:fullscreen"
+    #   "100:class_g *?= 'Minecraft'"
+    # ];
+    # backend = "glx";
+    # settings = {
+    #   blur-background-exclude = [
+    #     "class_g = 'slop'"
+    #     "class_g *?= 'Minecraft'"
+    #   ];
+    # };
+  };
+
+   programs.xmobar = {
+    enable = true;
+    extraConfig = ''
+Config { overrideRedirect = False
+       , font     = "GohuFont 8"
+       , bgColor  =     "#222222"
+       , fgColor  =     "#555555" 
+       , position = TopH 31
+       , textOffset = 0
+       , commands =
+         [ Run Date "<fc=white>%A, %d/%m/%y [%H:%M]</fc>" "date" 10
+         , Run UnsafeXMonadLog
+         ]
+        , sepChar  = "%"
+        , alignSep = "}{"
+        , template = "  %UnsafeXMonadLog% }%date%{"
+        }
+    '';
   };
 
   services.dunst = {
