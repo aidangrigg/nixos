@@ -83,6 +83,8 @@
     xorg.xhost
 
     qmk
+
+    prismlauncher
   ];
 
   programs.bashmount.enable = true;
