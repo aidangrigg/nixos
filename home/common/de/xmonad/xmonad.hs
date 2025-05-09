@@ -49,12 +49,10 @@ fgDim = "#AAAAAA"
 mg = "#555555"
 bg = "#222222"
 
-data State = State { brightness :: Float
-                  }
+data BrightnessState = BrightnessState { brightness :: Float }
 
-instance ExtensionClass State where
-  initialValue = State { brightness = 1.0
-                       }
+instance ExtensionClass BrightnessState where
+  initialValue = BrightnessState { brightness = 1.0 }
 
 main :: IO ()
 main = xmonad
@@ -108,6 +106,17 @@ adjustVolume delta
   where
     f = spawn . (++ " && notify-send -t 1000 -h int:value:$(pamixer --get-volume) \"Volume\"")
 
+data ScratchpadState = ScratchpadState String
+
+instance ExtensionClass ScratchpadState where
+  initialValue = ScratchpadState "discord"
+
+activatePreviousScratchpad = do
+  (ScratchpadState previous) <- XS.get
+  namedScratchpadAction myScratchpads previous
+
+activateScratchpad n =
+  XS.put (ScratchpadState n) >> namedScratchpadAction myScratchpads n
 
 myConfig = def
     { modMask    = mod4Mask
@@ -122,14 +131,14 @@ myConfig = def
     [ ("M-b"                    , spawn Main.browser)
     , ("M-<Return>"             , spawn Main.terminal)
     , ("M-S-q"                  , kill)
-    , ("M-S-e"                  , spawn Main.emacs)
-    , ("M-d"                    , spawn Main.launcher)
+    , ("M-e"                    , spawn Main.emacs)
+    , ("M-x"                    , spawn Main.launcher)
     , ("M-q"                    , spawn "xmonad --restart")
-    , ("M-s"                    , spawn "maim -s | xclip -selection clipboard -t image/png")
+    , ("M-s"                    , spawn "maim -u | feh -F - & maim -s | xclip -selection clipboard -t image/png && kill $!")
     , ("M-S-s"                  , spawn "peek")
     , ("M-<U>"                  , adjustBrightness 0.1)
     , ("M-<D>"                  , adjustBrightness (-0.1))
-    , ("M-e"                    , spawn fileBrowser)
+    , ("M-S-e"                  , spawn fileBrowser)
     , ("M-f"                    , sendMessage (Toggle "full") >> sendMessage ToggleStruts)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
     , ("<XF86AudioLowerVolume>" , adjustVolume (-5))
@@ -137,8 +146,9 @@ myConfig = def
     , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
-    , ("M-a M-o"                  , namedScratchpadAction myScratchpads "org")
-    , ("M-a M-d"                  , namedScratchpadAction myScratchpads "discord")
+    , ("M-a M-o"                , activateScratchpad "org")
+    , ("M-a M-d"                , activateScratchpad "discord")
+    , ("M-<Tab>"                , activatePreviousScratchpad)
     ]
 
 -- Window rules
@@ -164,7 +174,8 @@ myStartupHook = do
   spawnOnce "xrandr -r 165" -- refresh rate
   spawnOnce "feh --bg-scale /home/aidan/images/background/cloud.png" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
-  -- Fixes `xdg-open`. See here: https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+  -- Fixes `xdg-open`. See here:
+  --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
 
 my_half = spacing 3 $ Tall 1 (3/100) (1/2)
@@ -197,14 +208,8 @@ myXmobarPP = def
     , ppHidden          = (ppColor fgDim) . wrap " " " "
     , ppLayout          = (ppColor fg)
     , ppOrder           = \[w,_,_] -> [w]
-    -- , ppExtras          = [orgTodoLogger]
     }
   where
-    -- orgTodoLogger :: X (Maybe String)
-    -- orgTodoLogger = do
-    --   f <- liftIO (TIO.readFile "/home/aidan/sync/notes/org/tasks.org")
-    --   return $ (org f) >>= (closestTodosPP . closestTodos)
-
     ppColor :: String -> String -> String
     ppColor c = xmobarColor c ""
 
