@@ -16,6 +16,7 @@
     ./common/syncthing
     ./common/productivity
     ./common/modelling
+    ./common/music
   ];
 
   nixpkgs = {
@@ -61,6 +62,7 @@
     
     pavucontrol
     vlc
+    mpv
     peek
 
     inkscape

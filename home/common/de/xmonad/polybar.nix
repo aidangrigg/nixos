@@ -26,7 +26,7 @@ in {
         modules-left = "xworkspaces";
         modules-center = "date";
         modules-right = "pipewire";
-        font-0 = "GohuFont:size=12;2";
+        font-0 = ":size=12;2";
         background = colours.background;
         foreground = colours.foreground;
       };

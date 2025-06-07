@@ -2,6 +2,12 @@
   programs.alacritty = {
     enable = true;
     settings = {
+      font = {
+        normal = {
+          family = "Terminus";
+        };
+        size = 12;
+      };
       window.padding = {
         x = 5;
         y = 5;

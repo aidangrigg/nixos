@@ -65,24 +65,35 @@ main = xmonad
     toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
     toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
 
+data Power = Power
+
+instance XPrompt Power where
+  showXPrompt       Power = "power | "
+  commandToComplete _ c  = c
+  nextCompletion      _  = getNextCompletion
+
 myPromptConfig :: XPConfig
 myPromptConfig = def
   { bgColor = bg
   , fgColor = fg
+  , borderColor = fg
+  , alwaysHighlight = True
   , promptBorderWidth = 0
-  , height = 33
-  , position = Top
-  , font = "xft:GohuFont:size=12"
+  , height = 30
+  , position = CenteredAt { xpCenterY = 0.2, xpWidth = 0.3 }
+  , font = "xft:terminus:size=12"
+  , maxComplRows = Just 20
+  , maxComplColumns = Just 1
   }
   
 powerPrompt :: X ()
 powerPrompt =
-  inputPromptWithCompl myPromptConfig "Poweroff"
-  (mkComplFunFromList def ["poweroff", "reboot", "suspend"]) ?+ handle
+  mkXPrompt Power myPromptConfig
+  (mkComplFunFromList def ["off", "reboot", "zzz"]) handle
   where
-    handle "poweroff" = spawn "systemctl poweroff"
+    handle "off" = spawn "systemctl poweroff"
     handle "reboot" = spawn "systemctl reboot"
-    handle "suspend" = spawn "i3lock 5 3 && systemctl suspend"
+    handle "zzz" = spawn "i3lock 5 3 && systemctl suspend"
     handle _ = spawn "notify-send -t 1000 \"Unknown value\""
 
 adjustBrightness :: Float -> X ()
@@ -109,7 +120,7 @@ adjustVolume delta
 data ScratchpadState = ScratchpadState String
 
 instance ExtensionClass ScratchpadState where
-  initialValue = ScratchpadState "discord"
+  initialValue = ScratchpadState "org"
 
 activatePreviousScratchpad = do
   (ScratchpadState previous) <- XS.get
@@ -120,7 +131,7 @@ activateScratchpad n =
 
 myConfig = def
     { modMask    = mod4Mask
-    , layoutHook = avoidStruts $ lessBorders Never $ noBorders $ myLayout
+    , layoutHook = avoidStruts $ smartBorders $ myLayout
     , manageHook = myManageHook
     , normalBorderColor = "#222222"
     , focusedBorderColor = "#FFFFFF"
@@ -133,11 +144,11 @@ myConfig = def
     , ("M-S-q"                  , kill)
     , ("M-e"                    , spawn Main.emacs)
     , ("M-x"                    , spawn Main.launcher)
-    , ("M-q"                    , spawn "xmonad --restart")
+    , ("M-q"                    , refresh)
     , ("M-s"                    , spawn "maim -u | feh -F - & maim -s | xclip -selection clipboard -t image/png && kill $!")
     , ("M-S-s"                  , spawn "peek")
-    , ("M-<U>"                  , adjustBrightness 0.1)
-    , ("M-<D>"                  , adjustBrightness (-0.1))
+    , ("M-<U>"                  , adjustBrightness 0.05)
+    , ("M-<D>"                  , adjustBrightness (-0.05))
     , ("M-S-e"                  , spawn fileBrowser)
     , ("M-f"                    , sendMessage (Toggle "full") >> sendMessage ToggleStruts)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
@@ -146,8 +157,9 @@ myConfig = def
     , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
-    , ("M-a M-o"                , activateScratchpad "org")
-    , ("M-a M-d"                , activateScratchpad "discord")
+    , ("M-o"                    , activateScratchpad "org")
+    , ("M-d"                    , activateScratchpad "discord")
+    , ("M-m"                    , activateScratchpad "ncmpcpp")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     ]
 
@@ -158,8 +170,9 @@ rectCentered percentage = W.RationalRect offset offset percentage percentage
     offset = (1 - percentage) / 2
 
 myScratchpads =
-  [ NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ customFloating (rectCentered 0.7)
-  , NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list)' -g '140x40'" (title =? "orgmacs") $ customFloating (rectCentered 0.6)
+  [ NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ customFloating (rectCentered 0.8)
+  , NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list)' -g '140x40'" (title =? "orgmacs") $ customFloating (rectCentered 0.8)
+  , NS "ncmpcpp" "alacritty --title ncmpcpp -e ncmpcpp" (title =? "ncmpcpp") $ customFloating (rectCentered 0.8)
   ]
 
 myManageHook :: ManageHook
@@ -189,7 +202,7 @@ my_tabbed = spacing 3 $ tabbedBottom shrinkText myTabConfig
                       , inactiveTextColor = fg
                       , activeBorderColor = fg
                       , inactiveBorderColor = bg
-                      , fontName = "GohuFont"
+                      , fontName = "envypn"
                       , decoHeight = 20}
 
 

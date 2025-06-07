@@ -65,20 +65,21 @@
     networkmanager.enable = true;
   };
 
+  # enable logitech mouse configuration
   services.ratbagd.enable = true;
 
-  # audio
-  hardware.pulseaudio.enable = false; # Use Pipewire, the modern sound subsystem
+  programs.nh = {
+    enable = true;
+  };
 
+  # audio
   security.rtkit.enable = true; # Enable RealtimeKit for audio purposes
 
   services.pipewire = {
     enable = true;
-    alsa.enable = false;
-    alsa.support32Bit = false;
+    alsa.enable = true;
+    alsa.support32Bit = true;
     pulse.enable = true;
-    # Uncomment the following line if you want to use JACK applications
-    # jack.enable = true;
   };
 
   time.timeZone = "Australia/Sydney";
