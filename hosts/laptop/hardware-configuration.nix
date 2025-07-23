@@ -18,6 +18,11 @@
       fsType = "ext4";
     };
 
+  boot.initrd.luks.devices.root = {
+    device = "/dev/sda2";
+    preLVM = true;
+  };
+
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/F547-D227";
       fsType = "vfat";

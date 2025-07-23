@@ -53,8 +53,7 @@
   };
 
   # FIXME: Add the rest of your current configuration
-
-  boot.loader = { 
+  boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
   };
@@ -87,7 +86,6 @@
 
   # steam
   programs.steam.enable = true;
-
   programs.nix-ld.enable = true;
 
   # keyboard
@@ -143,7 +141,7 @@
     autoRepeatInterval = 50;
 
     displayManager.lightdm.enable = true;
-    
+
     windowManager.xmonad = {
       enable = true;
     #   enableContribAndExtras = true;
