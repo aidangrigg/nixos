@@ -30,6 +30,13 @@
           ./hosts/desktop/configuration.nix
         ];
       };
+      laptop = nixpkgs.lib.nixosSystem {
+        specialArgs = {inherit inputs outputs;};
+        # > Our main nixos configuration file <
+        modules = [
+          ./hosts/laptop/configuration.nix
+        ];
+      };
     };
 
     # Standalone home-manager configuration entrypoint
@@ -40,6 +47,12 @@
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
         modules = [./home/desktop.nix];
+      };
+      laptop = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+        extraSpecialArgs = {inherit inputs outputs;};
+        # > Our main home-manager configuration file <
+        modules = [./home/laptop.nix];
       };
     };
   };
