@@ -4,8 +4,9 @@
     font-awesome
     roboto
     roboto-mono
-    gohufont
+    iosevka
     terminus_font
+    siji
   ];
   fonts.fontconfig.enable = true;
 }

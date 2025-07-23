@@ -140,7 +140,7 @@
     };
 
     autoRepeatDelay = 250;
-    autoRepeatInterval = 30;
+    autoRepeatInterval = 50;
 
     displayManager.lightdm.enable = true;
     
@@ -195,7 +195,8 @@
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ ];
+    allowedTCPPorts = [  ];
+    allowedUDPPorts = [  ];
   };
 
   services.tailscale.enable = true;

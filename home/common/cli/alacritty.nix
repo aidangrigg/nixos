@@ -4,16 +4,16 @@
     settings = {
       font = {
         normal = {
-          family = "Terminus";
+          family = "Iosevka";
         };
-        size = 12;
+        size = 14;
       };
       window.padding = {
         x = 5;
         y = 5;
       };
       colors.primary = {
-        background = "#222222";
+        background = "#000000";
         foreground = "#FFFFFF";
       };
     };

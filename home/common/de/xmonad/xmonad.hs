@@ -14,16 +14,18 @@ import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ToggleLayouts
 import           XMonad.Prompt
 import           XMonad.Prompt.Input
+import           XMonad.Prompt.FuzzyMatch
 import qualified XMonad.StackSet as W
 import           XMonad.Util.ClickableWorkspaces
 import           XMonad.Util.EZConfig
 import qualified XMonad.Util.ExtensibleState as XS
 import           XMonad.Util.Hacks (fixSteamFlicker)
 import           XMonad.Util.Loggers
-import           XMonad.Util.NamedScratchpad
+import qualified XMonad.Util.NamedScratchpad as NSP
 import           XMonad.Util.PureX (toX)
-import           XMonad.Util.Run (spawnPipe)
+import           XMonad.Util.Run (spawnPipe, runProcessWithInput)
 import           XMonad.Util.SpawnOnce
+import           XMonad.Util.Dmenu
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -47,7 +49,7 @@ fg, fgDim, mg, bg :: String
 fg = "#ffffff"
 fgDim = "#AAAAAA"
 mg = "#555555"
-bg = "#222222"
+bg = "#000000"
 
 data BrightnessState = BrightnessState { brightness :: Float }
 
@@ -68,7 +70,7 @@ main = xmonad
 data Power = Power
 
 instance XPrompt Power where
-  showXPrompt       Power = "power | "
+  showXPrompt       Power = "> "
   commandToComplete _ c  = c
   nextCompletion      _  = getNextCompletion
 
@@ -78,23 +80,32 @@ myPromptConfig = def
   , fgColor = fg
   , borderColor = fg
   , alwaysHighlight = True
-  , promptBorderWidth = 0
+  , promptBorderWidth = 1
   , height = 30
-  , position = CenteredAt { xpCenterY = 0.2, xpWidth = 0.3 }
-  , font = "xft:terminus:size=12"
+  , position = CenteredAt { xpCenterY = 0.4, xpWidth = 0.3 }
+  , font = "xft:Iosevka:size=12"
   , maxComplRows = Just 20
   , maxComplColumns = Just 1
   }
-  
+
 powerPrompt :: X ()
 powerPrompt =
   mkXPrompt Power myPromptConfig
-  (mkComplFunFromList def ["off", "reboot", "zzz"]) handle
+  (mkComplFunFromList' def ["off", "reboot", "zzz"]) handle
   where
     handle "off" = spawn "systemctl poweroff"
     handle "reboot" = spawn "systemctl reboot"
     handle "zzz" = spawn "i3lock 5 3 && systemctl suspend"
     handle _ = spawn "notify-send -t 1000 \"Unknown value\""
+
+switchAudioInput :: X ()
+switchAudioInput =
+  mkXPrompt Power myPromptConfig
+  (mkComplFunFromList' def ["headphones", "speakers"]) handle
+  where
+    handle "headphones" = spawn "pactl set-default-sink 'alsa_output.pci-0000_13_00.6.analog-stereo' && notify-send 'Switched to headphones'"
+    handle "speakers" = spawn "pactl set-default-sink 'alsa_output.pci-0000_03_00.1.hdmi-stereo-extra1' && notify-send 'Switched to speakers'"
+    handle opt = spawn $ "notify-send 'Unknown option: " ++ show opt ++ "'"
 
 adjustBrightness :: Float -> X ()
 adjustBrightness delta = do
@@ -124,10 +135,10 @@ instance ExtensionClass ScratchpadState where
 
 activatePreviousScratchpad = do
   (ScratchpadState previous) <- XS.get
-  namedScratchpadAction myScratchpads previous
+  NSP.namedScratchpadAction myScratchpads previous
 
 activateScratchpad n =
-  XS.put (ScratchpadState n) >> namedScratchpadAction myScratchpads n
+  XS.put (ScratchpadState n) >> NSP.namedScratchpadAction myScratchpads n
 
 myConfig = def
     { modMask    = mod4Mask
@@ -161,6 +172,7 @@ myConfig = def
     , ("M-d"                    , activateScratchpad "discord")
     , ("M-m"                    , activateScratchpad "ncmpcpp")
     , ("M-<Tab>"                , activatePreviousScratchpad)
+    , ("M-a"                    , switchAudioInput)
     ]
 
 -- Window rules
@@ -170,9 +182,9 @@ rectCentered percentage = W.RationalRect offset offset percentage percentage
     offset = (1 - percentage) / 2
 
 myScratchpads =
-  [ NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ customFloating (rectCentered 0.8)
-  , NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list)' -g '140x40'" (title =? "orgmacs") $ customFloating (rectCentered 0.8)
-  , NS "ncmpcpp" "alacritty --title ncmpcpp -e ncmpcpp" (title =? "ncmpcpp") $ customFloating (rectCentered 0.8)
+  [ NSP.NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ NSP.customFloating (rectCentered 0.8)
+  , NSP.NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list) (org-alert-disable)' -g '140x40'" (title =? "orgmacs") $ NSP.customFloating (rectCentered 0.8)
+  , NSP.NS "ncmpcpp" "alacritty --title ncmpcpp -e ncmpcpp" (title =? "ncmpcpp") $ NSP.customFloating (rectCentered 0.9)
   ]
 
 myManageHook :: ManageHook
@@ -181,7 +193,7 @@ myManageHook = composeAll
     , className =? "Peek" --> doFloat
     , isFullscreen        --> doFullFloat
     , isDialog            --> doFloat
-    ] <+> namedScratchpadManageHook myScratchpads
+    ] <+> NSP.namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
   spawnOnce "xrandr -r 165" -- refresh rate
@@ -191,10 +203,10 @@ myStartupHook = do
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
 
-my_half = spacing 3 $ Tall 1 (3/100) (1/2)
-my_twothirds = spacing 3 $ Tall 1 (3/100) (2/3)
-my_grid = spacing 3 Grid
-my_tabbed = spacing 3 $ tabbedBottom shrinkText myTabConfig
+my_half = Tall 1 (3/100) (1/2)
+my_twothirds = Tall 1 (3/100) (2/3)
+my_grid =  Grid
+my_tabbed = tabbedBottom shrinkText myTabConfig
   where
     myTabConfig = def { activeColor = fg
                       , inactiveColor = bg
@@ -202,13 +214,13 @@ my_tabbed = spacing 3 $ tabbedBottom shrinkText myTabConfig
                       , inactiveTextColor = fg
                       , activeBorderColor = fg
                       , inactiveBorderColor = bg
-                      , fontName = "envypn"
+                      , fontName = "Iosevka"
                       , decoHeight = 20}
 
 
 myLayout = toggleLayouts (named "full" Full)
   (named "1/2" my_half
-   ||| named "2/3" my_twothirds 
+   ||| named "2/3" my_twothirds
    ||| named "tabbed" my_tabbed
    ||| named "grid" my_grid)
 
