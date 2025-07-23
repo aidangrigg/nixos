@@ -53,6 +53,11 @@
     nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
   };
 
+  boot.initrd.luks.devices.root = {
+    device = "/dev/sda2";
+    preLVM = true;
+  };
+
   # Use the systemd-boot EFI boot loader.
   boot.loader = {
     systemd-boot.enable = true;

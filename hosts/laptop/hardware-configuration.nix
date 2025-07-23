@@ -8,7 +8,7 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "sd_mod" "rtsx_pci_sdmmc" ];
   boot.initrd.kernelModules = [ "dm-snapshot" ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
@@ -17,11 +17,6 @@
     { device = "/dev/disk/by-uuid/5e486fe1-8dea-4049-9ac3-bf3f9c217ade";
       fsType = "ext4";
     };
-
-  boot.initrd.luks.devices.root = {
-    device = "/dev/sda2";
-    preLVM = true;
-  };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/F547-D227";
