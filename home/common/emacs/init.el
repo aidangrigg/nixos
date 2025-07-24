@@ -17,10 +17,14 @@
 
 ;; Install use-package (we'll use this to install packages)
 (straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+
+(use-package straight
+  :custom
+  (straight-use-package-by-default t))
 
 ;; Org
 (use-package org
+  :straight (:type built-in)
   :preface
   (defun my/project-orgfile ()
     (interactive)
@@ -39,6 +43,8 @@
 	 ("C-c o f" . 'my/project-orgfile)
 	 ("C-c o p" . 'my/project-agenda))
   :custom
+  (org-agenda-window-setup 'only-window); agenda takes whole window
+  (org-agenda-restore-windows-after-quit t); restore window configuration on exit
   (org-agenda-start-with-log-mode t)
   (org-adapt-indentation nil)
   (org-enforce-todo-dependencies t)
@@ -56,7 +62,9 @@
   (org-icalendar-include-todo t)
   (org-icalendar-use-scheduled '(todo-start event-if-todo))
   (org-icalendar-use-deadline '(todo-due event-if-todo))
+  (org-habit-show-habits-only-for-today nil)
   :config
+  (add-to-list 'org-modules 'org-habit t)
   ;; Babel stuff
   (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
@@ -88,7 +96,7 @@
   (org-roam-db-autosync-mode))
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   ;; (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  
+
   ;; (cl-defmethod org-roam-node-type ((node org-roam-node))
   ;;   "Return the TYPE of NODE."
   ;;   (condition-case nil
@@ -106,8 +114,24 @@
   :custom
   (org-download-image-dir "~/sync/notes/org/images"))
 
-(use-package ace-window
-  :bind (("M-o" . 'ace-window)))
+(use-package org-alert
+  :ensure t
+  :after org
+  :custom
+  (alert-default-style 'libnotify)
+  (org-alert-interval 300)
+  (org-alert-notify-cutoff 15)
+  (org-alert-notify-after-event-cutoff 10)
+  :config
+  (org-alert-enable))
+
+(use-package org-appear
+  :custom
+  (org-appear-autoemphasis t)
+  (org-appear-autolinks t)
+  (org-appear-inside-latex t)
+  (org-appear-autosubmarkers t)
+  :hook ((org-mode . org-appear-mode)))
 
 (use-package auctex
   :custom
@@ -119,28 +143,23 @@
 ;;; Clean up the ui
 
 (use-package emacs
+  :straight (:type built-in)
   :preface
   (defun my/disable-scroll-bars (frame)
     (modify-frame-parameters frame
                              '((vertical-scroll-bars . nil)
                                (horizontal-scroll-bars . nil))))
-  (defun my/page-down ()
-    (interactive)
-    (next-line (/ (window-total-height) 2))
-    (recenter))
-
-  (defun my/page-up ()
-    (interactive)
-    (previous-line (/ (window-total-height) 2))
-    (recenter))
-  :bind (("M-v"   . my/page-up)
-         ("C-v"   . my/page-down)
-         ("C-c f" . query-replace)
-         ("M-h"   . shrink-windows-horizontally)
-         ("M-l"   . enlarge-windows-horizontally)
-         ("M-j"   . balance-windows))
+  :bind (("C-c a"   . save-buffer)
+         ("M-/" . completion-at-point)
+         ("M-h" . windmove-left)
+         ("M-l" . windmove-right)
+         ("M-k" . windmove-up)
+         ("M-j" . windmove-down)
+         :map my/window-map
+         ("h" . split-window-horizontally)
+         ("v" . split-window-vertically)
+         ("d" . delete-other-windows))
   :custom
-
   (enable-recursive-minibuffers t)
   ;; Hide commands in M-x which do not work in the current mode.  Vertico
   ;; commands are hidden in normal buffers. This setting is useful beyond
@@ -150,15 +169,23 @@
   (minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt))
 
-  (default-frame-alist '((font . "Roboto Mono")))
-  
+  (display-buffer-base-action
+   '((display-buffer-reuse-window display-buffer-same-window)
+     (reusable-frames . t)))
+
+  (even-window-sizes nil)     ; avoid resizing
+
+  (frame-inhibit-implied-resize t)
   (inhibit-startup-message t)
   (ring-bell-function 'ignore)
   (scroll-margin 8)
-  (show-trailing-whitespace nil)
+  (show-trailing-whitespace t)
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (custom-file (expand-file-name "custom.el" user-emacs-directory))
   (compilation-scroll-output t)
+
+  ;; modeline
+  (mode-line-format (delq 'mode-line-modes mode-line-format))
 
   ;; backups
   (backup-directory-alist `(("." . "~/.cache/emacs")))
@@ -194,6 +221,13 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
+  (setq default-frame-alist '((font . "Iosevka-14")))
+
+  (define-prefix-command 'my/window-map)
+  (bind-key "C-c w" my/window-map)
+
+  (add-hook 'text-mode-hook #'visual-line-mode)
+
   (scroll-bar-mode -1) ; Disable visible scrollbar
   (tool-bar-mode -1)   ; Disable the toolbar
   (tooltip-mode -1)    ; Disable tooltips
@@ -208,7 +242,7 @@
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
                "~/.emacs.d/themes/")
-  (load-theme 'minimal))
+  (load-theme 'minimal-black))
 
 (use-package hydra)
 
@@ -225,13 +259,22 @@
 
 (use-package meow
   :after surround
+  :preface
+  (defun my/page-down ()
+    (interactive)
+    (next-line (/ (window-total-height) 2))
+    (recenter))
+  (defun my/page-up ()
+    (interactive)
+    (previous-line (/ (window-total-height) 2))
+    (recenter))
   :custom
   (meow-use-clipboard t)
   (meow-expand-hint-remove-delay 0)
+  (meow-use-cursor-position-hack nil)
   :config
   (meow-thing-register 'angle '(regexp "<" ">") '(regexp "<" ">"))
   (add-to-list 'meow-char-thing-table '(?a . angle))
-  
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
     (meow-motion-overwrite-define-key
@@ -244,7 +287,6 @@
      '("k" . "H-k")
      ;; Use SPC (0-9) for digit arguments.
      '("b" . consult-buffer)
-     '("w" . save-buffer)
      '("f" . consult-fd)
      '("s" . consult-ripgrep)
      '("/" . meow-keypad-describe-key)
@@ -269,8 +311,8 @@
      '("b" . meow-back-word)
      '("B" . meow-back-symbol)
      '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
+     '("d" . meow-kill)
+     '("D" . fixup-whitespace)
      '("e" . meow-next-word)
      '("E" . meow-next-symbol)
      '("f" . meow-find)
@@ -286,7 +328,7 @@
      '("K" . meow-prev-expand)
      '("l" . meow-right)
      '("L" . meow-right-expand)
-     '("m" . meow-join)
+     '("m" . my/page-up)
      '("M" . hydra-surround/body)
      '("n" . meow-search)
      '("o" . meow-block)
@@ -296,19 +338,18 @@
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . meow-swap-grab)
-     '("s" . meow-kill)
      '("t" . meow-till)
      '("u" . meow-undo)
      '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
+     '("v" . my/page-down)
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
      '("X" . meow-goto-line)
      '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("/" . isearch-forward)
+     '("Y" . meow-sync-grab) ;; useless
+     '("z" . meow-visit)
+     '("/" . meow-join)
      '("'" . repeat)
      '("<escape>" . ignore)))
   (meow-setup)
@@ -332,14 +373,6 @@
 
 (use-package magit
   :bind (("C-c g" . 'magit)))
-
-(use-package expand-region
-  :bind (("C-." . 'er/expand-region)))
-
-(use-package multiple-cursors
-  :bind (("C-c c s" . 'mc/mark-next-like-this)
-	 ("C-c c l" . 'mc/edit-lines)
-	 ("C-c c d" . 'mc/mark-all-like-this-in-defun)))
 
 
 (use-package vertico
@@ -379,6 +412,39 @@
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult
   ;; Replace bindings. Lazily loaded by `use-package'.
@@ -442,7 +508,7 @@
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; "C-+"
-  )
+  (consult-customize consult-buffer :preview-key "M-/"))
 
 (use-package which-key
   :config (which-key-mode)
@@ -451,66 +517,98 @@
 
 ;; LSP Tings
 
+;; (use-package lsp-mode
+;;   :preface
+;;   :bind ((:map lsp-mode-map
+;; 	       ("C-c l a" . lsp-execute-code-action)
+;; 	       ("C-c l e" . flymake-show-diagnostics-buffer)
+;; 	       ("M-q"     . lsp-format-buffer)
+;; 	       ("C-c l r" . lsp-rename)))
+;;   ;; :hook ((rust-mode . lsp)
+;;   ;;        (js-mode . lsp)
+;;   ;;        (typescript-ts-mode . lsp)
+;;   ;;        (tsx-ts-mode . lsp)
+;;   ;;        (c++-ts-mode . lsp))
+;;   :config
+;;   (setq lsp-fsharp-use-dotnet-tool-for-fsac nil))
 
-(use-package lsp-mode
-  :preface
-  :bind ((:map lsp-mode-map
-	       ("C-c l a" . lsp-execute-code-action)
-	       ("C-c l e" . flymake-show-diagnostics-buffer)
-	       ("M-q"     . lsp-format-buffer)
-	       ("C-c l r" . lsp-rename)))
-  :hook ((rust-mode . lsp)
-	 (js-mode . lsp)
-	 (typescript-ts-mode . lsp)
-	 (tsx-ts-mode . lsp)
-         (c++-ts-mode . lsp))
-  :config
-  (setq lsp-fsharp-use-dotnet-tool-for-fsac nil))
+;; (use-package lsp-ui
+;;   :after lsp-mode
+;;   :bind ((:map lsp-ui-mode-map
+;; 	       ("C-c k" . lsp-ui-doc-glance))))
 
-(use-package lsp-ui
-  :after lsp-mode
-  :bind ((:map lsp-ui-mode-map
-	       ("C-c k" . lsp-ui-doc-glance))))
+(use-package eglot
+  :straight (:type built-in)
+  :custom
+  (eglot-code-action-indicator "")
+  (eglot-ignored-server-capabilities '(:inlayHintProvider))
+  :bind((:map eglot-mode-map
+              ("C-c l a"  . eglot-code-actions)
+              ("C-c l e"  . flymake-show-diagnostics-buffer)
+              ("M-q"      . eglot-format-buffer)
+              ("C-c l r"  . eglot-rename))))
+
+(use-package eldoc
+  :custom
+  (eldoc-idle-delay 0))
+
+(use-package eldoc-box
+  :after eglot
+  :bind((:map eglot-mode-map
+              ("C-c t"   . eldoc-box-help-at-point))))
 
 (use-package yasnippet
   :custom
   (yas-global-mode t))
 
-(use-package company
-  :bind ((:map company-mode-map
-	       ("M-/" . company-complete)
-	  :map company-active-map
-               ("TAB" . company-complete-selection)
-               ("C-n" . company-select-next)
-               ("C-p" . company-select-previous))
-         (:map company-search-map
-               ("TAB" . company-complete-selection)
-               ("C-n" . company-select-next)
-               ("C-p" . company-select-previous)))
+(use-package corfu
   :custom
-  (global-company-mode 1)
-  (company-global-modes
-   '(not text-mode message-mode git-commit-mode org-mode magit-status-mode))
-  (company-idle-delay nil)
-  (company-require-match nil)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations t)
-  (company-tooltip-limit 10)
-  (company-tooltip-minimum 10)
-  (company-format-margin-function nil)
-  (company-tooltip-minimum-width 50))
+  (corfu-quit-no-match nil)
+  (corfu-popupinfo-delay 0.3)
+  (corfu-popupinfo-max-width 70)
+  (corfu-popupinfo-max-height 20)
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
+
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+
+;; (use-package company
+;;   :bind ((:map company-mode-map
+;; 	       ("M-/" . company-complete)
+;; 	  :map company-active-map
+;;                ("TAB" . company-complete-selection)
+;;                ("C-j" . company-select-next)
+;;                ("C-k" . company-select-previous))
+;;          (:map company-search-map
+;;                ("TAB" . company-complete-selection)
+;;                ("C-j" . company-select-next)
+;;                ("C-k" . company-select-previous)))
+;;   :custom
+;;   (global-company-mode 1)
+;;   (company-global-modes
+;;    '(not text-mode message-mode git-commit-mode org-mode magit-status-mode))
+;;   (company-idle-delay nil)
+;;   (company-require-match nil)
+;;   (company-show-numbers t)
+;;   (company-tooltip-align-annotations t)
+;;   (company-tooltip-limit 10)
+;;   (company-tooltip-minimum 10)
+;;   (company-format-margin-function nil)
+;;   (company-tooltip-minimum-width 50))
 
 (use-package editorconfig
   :ensure t
   :config
   (editorconfig-mode 1))
 
-(use-package treesit-auto
-  :config
-  (global-treesit-auto-mode))
-
 (use-package treesit
-  :straight nil)
+  :straight (:type built-in))
 
 (use-package rainbow-mode)
 
@@ -529,6 +627,8 @@
 (use-package nix-mode
   :mode "\\.nix\\'")
 
+(use-package csv-mode)
+
 (use-package haskell-mode)
 
 (use-package markdown-mode)
@@ -537,18 +637,22 @@
 
 (use-package svelte-mode)
 
-(use-package fsharp-mode
-  :defer t
-  :ensure t)
+(use-package typst-ts-mode
+  :straight '(:type git :host codeberg :repo "meow_king/typst-ts-mode"))
 
 (use-package typescript-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode)))
 
-(use-package gdscript-mode
-  :straight (gdscript-mode
-             :type git
-             :host github
-             :repo "godotengine/emacs-gdscript-mode"))
+;; (use-package gdscript-mode
+;;   :straight (gdscript-mode
+;;              :type git
+;;              :host github
+;;              :repo "godotengine/emacs-gdscript-mode"))
 
+(use-package zig-mode
+  :bind(:map zig-mode-map
+        ("M-q" . zig-format-buffer))
+  :custom
+  (zig-format-on-save nil))
