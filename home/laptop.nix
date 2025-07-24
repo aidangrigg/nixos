@@ -12,7 +12,7 @@
   # You can import other home-manager modules here
   imports = [
     ./common/emacs
-    ./common/de/xmonad
+    ./common/de/river
     ./common/cli
     ./common/syncthing
     ./common/productivity
@@ -54,24 +54,17 @@
     };
   };
 
-  home.packages = with pkgs; [ 
+  home.packages = with pkgs; [
     # browsers
     firefox
     chromium
-    
     pavucontrol
-    vlc
     mpv
-    peek
-
     inkscape
     gimp
-
     nemo
-
     zip
     unzip
-
     remmina
   ];
 
