@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+scripts_path="${HOME}/.config/river/scripts"
+
+riverctl map normal Super+Shift Q close
+riverctl map normal Super J focus-view next
+riverctl map normal Super K focus-view previous
+riverctl map normal Super+Shift J swap next
+riverctl map normal Super+Shift K swap previous
+
+riverctl map normal Super Return spawn foot
+riverctl map normal Super B spawn firefox
+riverctl map normal Super X spawn "fuzzel -I"
+riverctl map normal Super I spawn "${scripts_path}/info-notif.sh"
+
+riverctl spawn rivertile
+riverctl output-layout rivertile
+
+for i in $(seq 1 9)
+do
+    tags=$((1 << ($i - 1)))
+
+    # Super+[1-9] to focus tag [0-8]
+    riverctl map normal Super $i set-focused-tags $tags
+
+    # Super+Shift+[1-9] to tag focused view with tag [0-8]
+    riverctl map normal Super+Shift $i set-view-tags $tags
+
+    # Super+Control+[1-9] to toggle focus of tag [0-8]
+    riverctl map normal Super+Control $i toggle-focused-tags $tags
+
+    # Super+Shift+Control+[1-9] to toggle tag [0-8] of focused view
+    riverctl map normal Super+Shift+Control $i toggle-view-tags $tags
+done
+
+emacs_tag=$((1 << 30))
+web_tag=$((1 << 31))
+
+riverctl rule-add -app-id Emacs tags $emacs_tag
+riverctl rule-add -app-id firefox tags $web_tag
+
+riverctl spawn emacs
+riverctl spawn firefox
+riverctl spawn mako
+
+riverctl map normal Super E set-focused-tags $emacs_tag
+riverctl map normal Super W set-focused-tags $web_tag
+riverctl map normal Super+Shift E toggle-focused-tags $emacs_tag
+riverctl map normal Super+Shift W toggle-focused-tags $web_tag
+
+# Super+0 to focus all tags
+# Super+Shift+0 to tag focused view with all tags
+all_tags=$(((1 << 32) - 1))
+riverctl map normal Super 0 set-focused-tags $all_tags
+riverctl map normal Super+Shift 0 set-view-tags $all_tags
+
+for mode in normal locked
+do
+    # Eject the optical drive (well if you still have one that is)
+    riverctl map $mode None XF86Eject spawn 'eject -T'
+
+    # Control pulse audio volume with pamixer (https://github.com/cdemoulins/pamixer)
+    riverctl map $mode None XF86AudioRaiseVolume  spawn "${scripts_path}/adjust-vol.sh 5%+"
+    riverctl map $mode None XF86AudioLowerVolume  spawn "${scripts_path}/adjust-vol.sh 5%-"
+    riverctl map $mode None XF86AudioMute         spawn "${scripts_path}/toggle-mute.sh"
+
+    # Control MPRIS aware media players with playerctl (https://github.com/altdesktop/playerctl)
+    riverctl map $mode None XF86AudioMedia spawn 'playerctl play-pause'
+    riverctl map $mode None XF86AudioPlay  spawn 'playerctl play-pause'
+    riverctl map $mode None XF86AudioPrev  spawn 'playerctl previous'
+    riverctl map $mode None XF86AudioNext  spawn 'playerctl next'
+
+    # Control screen backlight brightness with brightnessctl (https://github.com/Hummer12007/brightnessctl)
+    riverctl map $mode None XF86MonBrightnessUp   spawn 'brightnessctl set +5%'
+    riverctl map $mode None XF86MonBrightnessDown spawn 'brightnessctl set 5%-'
+done
+
+riverctl set-repeat 50 300
+
+riverctl keyboard-layout -options "ctrl:swapcaps" "us"
+
+### SYSTEMD INTEGRATION ###
+dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP NIXOS_OZONE_WL XCURSOR_THEME XCURSOR_SIZE && systemctl --user stop river-session.target && systemctl --user start river-session.target

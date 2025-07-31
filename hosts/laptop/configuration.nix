@@ -87,7 +87,7 @@
 
   xdg.portal = {
     enable = true;
-    config.common.default = "*";
+    wlr.enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
@@ -126,22 +126,28 @@
   };
 
     # wm and dm
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
+#  services.xserver = {
+#    enable = true;
+#    xkb = {
+#      layout = "us";
+#      variant = "";
+#    };
+#
+#    autoRepeatDelay = 250;
+#    autoRepeatInterval = 50;
+#
+#    displayManager.lightdm.enable = true;
+#    windowManager.xmonad = {
+#      enable = true;
+#    #   enableContribAndExtras = true;
+#    };
+  #  };
 
-    autoRepeatDelay = 250;
-    autoRepeatInterval = 50;
-
-    displayManager.lightdm.enable = true;
-    windowManager.xmonad = {
-      enable = true;
-    #   enableContribAndExtras = true;
-    };
+  services.displayManager = {
+    ly.enable = true;
   };
+
+  programs.river.enable = true;
 
     # screen lock
   programs.i3lock = {
@@ -149,7 +155,6 @@
     package = pkgs.i3lock-fancy-rapid;
   };
 
-  services.displayManager.defaultSession = "none+xmonad";
   programs.dconf.enable = true;
 
   services.libinput.mouse.accelProfile = "flat";
