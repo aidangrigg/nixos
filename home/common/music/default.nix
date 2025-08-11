@@ -7,12 +7,23 @@
 
   services.mpd = {
     enable = true;
+    # network.listenAddress = "any";
     extraConfig = ''
         audio_output {
           type "pipewire"
           name "Pipewire Output"
         }
     '';
+        # audio_output {
+        #   type		"httpd"
+  	    #   name		"My HTTP Stream"
+  	    #   encoder		"opus"		# optional
+  	    #   port		"8000"
+  	    #   bitrate		"96000"			# do not define if quality is defined
+  	    #   format		"48000:16:1"
+  	    #   always_on       "yes"			# prevent MPD from disconnecting all listeners when playback is stopped.
+  	    #   tags            "yes"			# httpd supports sending tags to listening streams.
+        # }
   };
 
   programs.ncmpcpp = {
