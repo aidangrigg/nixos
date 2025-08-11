@@ -66,6 +66,8 @@
     zip
     unzip
     remmina
+    networkmanagerapplet
+    wl-clipboard
   ];
 
   programs.bashmount.enable = true;
