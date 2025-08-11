@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: implicant
+# key: impl
+# --
+\implicant{${1}}{${2}}

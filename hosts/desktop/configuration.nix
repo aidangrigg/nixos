@@ -126,6 +126,9 @@
       ];
       # TODO: Be sure to add any other groups you need (such as networkmanager, audio, docker, etc)
       extraGroups = ["wheel" "networkmanager" "adbusers" "dialout" "docker"];
+      packages = with pkgs; [
+        xkbset
+      ];
     };
   };
 
@@ -172,7 +175,7 @@
         # Disable PS4 touchpad acting as mouse
         # USB
         ATTRS{name}=="Sony Computer Entertainment Wireless Controller Touchpad", ENV{LIBINPUT_IGNORE_DEVICE}="1"
-      ''; 
+      '';
       destination = "/etc/udev/rules.d/72-ps4touchpad.rules";
     };
   in {
@@ -187,6 +190,7 @@
   virtualisation = {
     containers.enable = true;
     docker.enable = true;
+    vmware.host.enable = true;
   };
 
   services.gvfs.enable = true;
@@ -211,6 +215,20 @@
       PasswordAuthentication = false;
     };
   };
+
+  programs.wireshark = {
+    enable = true;
+    package = pkgs.wireshark;
+  };
+
+  environment.systemPackages = (with pkgs; [
+    git
+    htop
+    vim
+    wget
+    which
+    blender-hip
+  ]);
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.05";

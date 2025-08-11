@@ -1,0 +1,6 @@
+# key: fn
+# name: Function
+# --
+${1:void} ${2:name}(${3:params}) {
+	  $0 
+}

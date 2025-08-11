@@ -1,0 +1,7 @@
+# -*- mode: org -*-
+# name: kmap4
+# key: kmap4
+# --
+\begin{karnaugh-map}[4][4][1][$${1:W}${2:X}$][$${3:Y}${4:Z}$]
+${5}
+\end{karnaugh-map}

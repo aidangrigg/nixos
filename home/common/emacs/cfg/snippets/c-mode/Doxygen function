@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Doxygen function
+# key: df
+# --
+/**
+ * ${1}
+ */

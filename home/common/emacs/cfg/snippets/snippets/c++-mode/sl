@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sl
+# key: sl
+# --
+std::scoped_lock<std::mutex> lock(${1});

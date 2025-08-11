@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: kmap3
+# key: kmap3
+# --
+\begin{karnaugh-map}[4][2][1][$${1:W}${2:X}$][$${3:Y}$]
+${4}
+\end{karnaugh-map}

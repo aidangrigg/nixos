@@ -8,10 +8,10 @@
   services.mpd = {
     enable = true;
     extraConfig = ''
-      audio_output {
-        type "pulse"
-        name "PulseAudio"
-      }
+        audio_output {
+          type "pipewire"
+          name "Pipewire Output"
+        }
     '';
   };
 

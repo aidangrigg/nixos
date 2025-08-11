@@ -6,6 +6,7 @@ import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.StatusBar
 import           XMonad.Hooks.StatusBar.PP
+import           XMonad.Hooks.SetWMName
 import           XMonad.Layout.Grid
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
@@ -26,6 +27,7 @@ import           XMonad.Util.PureX (toX)
 import           XMonad.Util.Run (spawnPipe, runProcessWithInput)
 import           XMonad.Util.SpawnOnce
 import           XMonad.Util.Dmenu
+
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
@@ -202,6 +204,7 @@ myStartupHook = do
   -- Fixes `xdg-open`. See here:
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
+  setWMName "LG3D"
 
 my_half = Tall 1 (3/100) (1/2)
 my_twothirds = Tall 1 (3/100) (2/3)

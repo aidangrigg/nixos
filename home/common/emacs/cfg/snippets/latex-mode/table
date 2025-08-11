@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: table
+# key: t
+# --
+\begin{table}[ht!]
+  \begin{center}
+    \begin{tabular}{${1:rows}}
+      \hline
+      ${2:header}
+      \hline
+      ${3:rows}
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}

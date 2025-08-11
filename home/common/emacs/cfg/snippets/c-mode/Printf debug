@@ -1,0 +1,4 @@
+# key: dbg
+# name: Printf debug
+# --
+printf("${1:variable}: %${2}", $1);

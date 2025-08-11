@@ -44,22 +44,23 @@
   gtk = {
     enable = true;
 
-    iconTheme = {
-      package = pkgs.vimix-icon-theme;
-      name = "Vimix-White";
-    };
+    # iconTheme = {
+    #   package = pkgs.vimix-icon-theme;
+    #   name = "Vimix-White";
+    # };
 
-    theme = {
-      package = pkgs.arc-theme;
-      name = "Arc-Dark";
-    };
+    # theme = {
+    #   package = pkgs.arc-theme;
+    #   name = "Arc-Dark";
+    # };
   };
 
-  home.packages = with pkgs; [ 
+  home.packages = with pkgs; [
     # browsers
     firefox
     chromium
-    
+
+
     pavucontrol
     vlc
     mpv
@@ -88,6 +89,8 @@
 
     prismlauncher
   ];
+
+  services.emacs.enable = true;
 
   programs.bashmount.enable = true;
   programs.obs-studio.enable = true;
