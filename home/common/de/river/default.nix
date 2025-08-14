@@ -10,6 +10,8 @@ in {
     fuzzel
     libnotify
     bc
+    wl-clipboard
+    brightnessctl
   ];
 
   programs.foot.enable = true;

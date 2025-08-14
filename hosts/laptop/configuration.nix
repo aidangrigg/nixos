@@ -88,9 +88,19 @@
   xdg.portal = {
     enable = true;
     wlr.enable = true;
+    config = {
+      common = {
+        default = "wlr";
+      };
+    };
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
+    wlr.settings.screencast = {
+      output_name = "eDP-1";
+      chooser_type = "simple";
+      chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
+    };
   };
 
   i18n = {
