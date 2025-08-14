@@ -241,8 +241,7 @@
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
-               "~/.emacs.d/themes/")
-  (load-theme 'minimal-black))
+               "~/.emacs.d/themes/"))
 
 (use-package hydra)
 
