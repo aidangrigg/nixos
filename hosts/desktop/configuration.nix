@@ -82,7 +82,6 @@
   };
 
   time.timeZone = "Australia/Sydney";
-  time.hardwareClockInLocalTime = true;
 
   # steam
   programs.steam.enable = true;
@@ -117,6 +116,7 @@
   };
 
   programs.adb.enable = true;
+  services.atd.enable = true;
 
   users.users = {
     aidan = {

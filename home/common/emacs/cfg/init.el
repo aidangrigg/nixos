@@ -52,6 +52,7 @@
   (org-id-track-globally t)
   (org-log-repeat nil)
   (org-hide-leading-stars t)
+  (org-latex-preview-ltxpng-directory "~/.cache/org-ltximg")
   (org-capture-templates
    '(("t" "Task" entry
       (file+olp "~/sync/notes/org/tasks.org" "Inbox")
@@ -64,6 +65,8 @@
   (org-icalendar-use-deadline '(todo-due event-if-todo))
   (org-habit-show-habits-only-for-today nil)
   :config
+  (setq org-format-latex-options
+        (plist-put org-format-latex-options :scale 1.5))
   (add-to-list 'org-modules 'org-habit t)
   ;; Babel stuff
   (org-babel-do-load-languages
@@ -76,37 +79,68 @@
   (org-roam-directory (file-truename "~/sync/notes/org/zettel"))
   (org-roam-capture-templates
 	'(("m" "main" plain "%?"
-           :if-new (file+head "main/${slug}.org"
-                              "#+title: ${title}\n")
+           :target
+           (file+head
+            "main/${slug}.org"
+            "#+title: ${title}\n")
            :immediate-finish t
            :unnarrowed t)
           ("r" "reference" plain "%?"
-           :if-new
-           (file+head "reference/${title}.org" "#+title: ${title}\n")
-           :immediate-finish t
+           :target
+           (file+head
+            "reference/${citar-citekey}.org"
+            "#+title: ${note-title}.\n#+created: %U\n#+last_modified: %U\n\n")
            :unnarrowed t)))
   :bind (("C-c r l" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
          ("C-c r g" . org-roam-graph)
          ("C-c r i" . org-roam-node-insert)
          ("C-c r c" . org-roam-capture)
-         ;; Dailies
-         ("C-c r d" . org-roam-dailies-goto-today))
+         ("C-c r d" . org-roam-dailies-goto-today)
+         :map org-mode-map
+         ("M-/" . org-roam-node-insert))
   :config
-  (org-roam-db-autosync-mode))
+  (org-roam-db-autosync-mode)
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
-  ;; (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (setq org-roam-node-display-template
+        (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
-  ;; (cl-defmethod org-roam-node-type ((node org-roam-node))
-  ;;   "Return the TYPE of NODE."
-  ;;   (condition-case nil
-  ;;       (file-name-nondirectory
-  ;;        (directory-file-name
-  ;;         (file-name-directory
-  ;;          (file-relative-name (org-roam-node-file node) org-roam-directory))))
-  ;;     (error "")))
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of NODE."
+    (condition-case nil
+        (file-name-nondirectory
+         (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error ""))))
 
+(use-package citar
+  :custom
+  (citar-bibliography '("~/sync/My Library.bib"))
+  :config
+  (defun my/org-roam-node-from-cite (keys-entries)
+    (interactive (list (citar-select-ref)))
+    (let ((title (citar-format--entry "${title}" keys-entries))
+          (author (citar-format--entry "${author}" keys-entries)))
+      (org-roam-capture- :templates
+                         '(("r" "reference" plain "%?" :if-new
+                            (file+head "reference/${citekey}.org"
+                                       ":PROPERTIES:\n:ROAM_REFS: [cite:@${citekey}]\n:END:\n#+title: ${title}\n#+author: ${author}")
+                            :immediate-finish t
+                            :unnarrowed t))
+                         :info (list :citekey keys-entries :author author)
+                         :node (org-roam-node-create :title title)
+                         :props '(:finalize find-file)))))
 
+;; (use-package citar-org-roam
+;;   :after citar
+;;   :bind (("C-c r r" . citar-open-notes))
+;;   :custom
+;;   (citar-org-roam-note-title-template "${title}")
+;;   (citar-org-roam-capture-template-key "r")
+;;   :config
+;;   (citar-org-roam-mode)
+;;   )
 
 (use-package org-download
   :bind ((:map org-mode-map
@@ -291,6 +325,8 @@
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet))
     (meow-normal-define-key
+     '("M-h" . windmove-left)
+     '("M-l" . windmove-right)
      '("0" . meow-expand-0)
      '("9" . meow-expand-9)
      '("8" . meow-expand-8)
@@ -619,9 +655,7 @@
 
 (use-package rust-mode)
 
-(use-package direnv
-  :config
-  (direnv-mode))
+(use-package direnv)
 
 (use-package nix-mode
   :mode "\\.nix\\'")
@@ -655,3 +689,5 @@
         ("M-q" . zig-format-buffer))
   :custom
   (zig-format-on-save nil))
+
+
