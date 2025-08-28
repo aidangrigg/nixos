@@ -12,6 +12,7 @@ in {
     bc
     wl-clipboard
     brightnessctl
+    swaybg
   ];
 
   programs.foot.enable = true;

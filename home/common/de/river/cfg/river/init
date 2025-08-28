@@ -75,6 +75,11 @@ do
     riverctl map $mode None XF86MonBrightnessDown spawn 'brightnessctl set 5%-'
 done
 
+# riverctl spawn "swaybg -c fbf1c7"
+riverctl border-color-focused '0xf57575'
+riverctl border-color-unfocused '0x00000000'
+riverctl border-width 3
+
 riverctl set-repeat 50 300
 
 riverctl keyboard-layout -options "ctrl:swapcaps" "us"

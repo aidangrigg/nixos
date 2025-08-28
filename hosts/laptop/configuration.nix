@@ -84,6 +84,7 @@
   };
 
   time.timeZone = "Australia/Sydney";
+  programs.nix-ld.enable = true;
 
   xdg.portal = {
     enable = true;
@@ -130,7 +131,7 @@
 
   users.users.aidan = {
     createHome = true;
-    extraGroups = ["wheel" "video" "audio" "disk" "networkmanager"];
+    extraGroups = ["wheel" "video" "audio" "disk" "networkmanager" "dialout"];
     group = "users";
     isNormalUser = true;
   };
