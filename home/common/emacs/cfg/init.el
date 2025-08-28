@@ -112,7 +112,10 @@
          (directory-file-name
           (file-name-directory
            (file-relative-name (org-roam-node-file node) org-roam-directory))))
-      (error ""))))
+      (error "")))
+  (defun my/tag-new-node-as-draft ()
+    (org-roam-tag-add '("draft")))
+  (add-hook 'org-roam-capture-new-node-hook #'my/tag-new-node-as-draft))
 
 (use-package citar
   :custom
