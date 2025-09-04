@@ -37,7 +37,7 @@
   };
 
   services.gammastep = {
-    enable = true;
+    enable = false;
     provider = "manual";
     latitude = -34.1;
     longitude = 150.0;

@@ -4,7 +4,8 @@
     font-awesome
     roboto
     roboto-mono
-    iosevka
+    iosevka-bin
+    (iosevka-bin.override { variant = "Aile"; })
     terminus_font
     siji
   ];

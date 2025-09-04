@@ -40,18 +40,34 @@
     size = 12;
   };
 
-  gtk = {
-    enable = true;
+  specialisation.dark.configuration = {
+    dconf.settings = {
+      "org/gnome/desktop/interface" = {
+        color-scheme = "prefer-dark";
+      };
+    };
 
-    # iconTheme = {
-    #   package = pkgs.vimix-icon-theme;
-    #   name = "Vimix-White";
-    # };
+    gtk = {
+      enable = true;
+      theme = {
+        name = "Adwaita-dark";
+      };
+    };
+  };
 
-    # theme = {
-    #   package = pkgs.arc-theme;
-    #   name = "Arc-Dark";
-    # };
+  specialisation.light.configuration = {
+    dconf.settings = {
+      "org/gnome/desktop/interface" = {
+        color-scheme = "prefer-light";
+      };
+    };
+
+    gtk = {
+      enable = true;
+      theme = {
+        name = "Adwaita-light";
+      };
+    };
   };
 
   home.packages = with pkgs; [

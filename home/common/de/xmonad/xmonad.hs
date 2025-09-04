@@ -173,6 +173,7 @@ myConfig = def
     , ("M-o"                    , activateScratchpad "org")
     , ("M-d"                    , activateScratchpad "discord")
     , ("M-m"                    , activateScratchpad "ncmpcpp")
+    -- , ("M-e"                    , activateScratchpad "emacs")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     , ("M-a"                    , switchAudioInput)
     ]
@@ -187,12 +188,14 @@ myScratchpads =
   [ NSP.NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ NSP.customFloating (rectCentered 0.8)
   , NSP.NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list) (org-alert-disable)' -g '140x40'" (title =? "orgmacs") $ NSP.customFloating (rectCentered 0.8)
   , NSP.NS "ncmpcpp" "alacritty --title ncmpcpp -e ncmpcpp" (title =? "ncmpcpp") $ NSP.customFloating (rectCentered 0.9)
+  -- , NSP.NS "emacs" "emacs --title='emacsnsp'" (title =? "emacsnsp") NSP.nonFloating
   ]
 
 myManageHook :: ManageHook
 myManageHook = composeAll
     [ className =? "Gimp" --> doFloat
     , className =? "Peek" --> doFloat
+    , className =? "Yad"  --> doCenterFloat
     , isFullscreen        --> doFullFloat
     , isDialog            --> doFloat
     ] <+> NSP.namedScratchpadManageHook myScratchpads

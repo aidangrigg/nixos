@@ -64,7 +64,37 @@
   (org-icalendar-use-scheduled '(todo-start event-if-todo))
   (org-icalendar-use-deadline '(todo-due event-if-todo))
   (org-habit-show-habits-only-for-today nil)
+  (org-agenda-skip-timestamp-if-done t)
+  (org-agenda-skip-deadline-if-done t)
+  (org-agenda-skip-scheduled-if-done t)
+  (org-agenda-skip-timestamp-if-deadline-is-shown t)
+  (org-agenda-time-grid
+        '((daily today require-timed)
+          ()
+          "......" "----------------"))
+  (org-agenda-current-time-string "   now")
+  (org-agenda-compact-blocks nil)
+  (org-agenda-hide-tags-regexp ".")
   :config
+  (setq org-agenda-block-separator nil)
+  (setq org-agenda-custom-commands
+        '(("d" "Daily Agenda"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-agenda-prefix-format "  %?-12t% s")
+                        (org-agenda-include-deadlines nil)))
+            (agenda nil ((org-agenda-entry-types '(:deadline))
+                         (org-agenda-format-date "")
+                         (org-agenda-span 0)
+                         (org-deadline-warning-days 60)
+                         (org-agenda-prefix-format " %6s [%8T] ")
+                         (org-agenda-deadline-leaders '("Deadline: " "(%dd.)" "(+%dd.)"))
+                         (org-agenda-overriding-header "\nUpcoming")))
+            (tags-todo "+university"
+                       ((org-agenda-overriding-header "\nUniversity\n")
+                        (org-agenda-prefix-format " [%8T] ")))
+            ))
+          ))
+  (add-hook 'org-agenda-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5))
   (add-to-list 'org-modules 'org-habit t)
@@ -73,6 +103,60 @@
    'org-babel-load-languages '((C . t)
 			       (haskell . t)
 			       (shell . t))))
+
+;; (use-package org-super-agenda
+;;   :custom
+;;   (org-super-agenda-groups
+;;    '((:name "Today"
+;;             :time-grid t
+;;             :date today
+;;             :scheduled today
+;;             :deadline today
+;;             :face 'warning)
+;;      (:name "Upcoming"
+;;             :deadline future)
+;;      (:name "Overdue"
+;;             :deadline past
+;;             :scheduled past
+;;             :face 'error)
+;;      (:name "University"
+;;             :tag "university")
+;;      )))
+
+;; (use-package org-ql
+;;   :after org
+;;   :config
+;;   (setq org-ql-views
+;;         (list (cons "Today"
+;;                     (list :buffers-files #'org-agenda-files
+;;                           :query `(or (closed :on today)
+;;                                       (and (habit)
+;;                                            (not (done))
+;;                                            (scheduled :to today))
+;;                                       (and ,ha-org-ql-typical-work-tasks
+;;                                            (or (deadline auto)
+;;                                                (todo "DOING")
+;;                                                (scheduled :to today)
+;;                                                (ts-active :on today))))
+;;                           :sort '(priority date)
+;;                           :super-groups 'ha-org-super-agenda-today
+;;                           :title "Today in Me"))
+
+;;               (cons "Overview: Tomorrow"
+;;                     (list :buffers-files #'org-agenda-files
+;;                           :query '(and (not (done))
+;;                                        (tags "work")
+;;                                        (scheduled :from tomorrow :to tomorrow))
+;;                           :sort '(priority date)
+;;                           :super-groups 'ha-org-super-agenda-today
+;;                           :title "Overview: Tomorrow's tasks"))
+
+;;               (cons "Calendar: Today"
+;;                     (list :buffers-files #'org-agenda-files
+;;                           :query '(ts-active :on today)
+;;                           :title "Today"
+;;                           :super-groups 'ha-org-super-agenda-today
+;;                           :sort '(priority))))))
 
 (use-package org-roam
   :custom
@@ -85,12 +169,13 @@
             "#+title: ${title}\n")
            :immediate-finish t
            :unnarrowed t)
-          ("r" "reference" plain "%?"
+          ("e" "empty" plain "%?"
            :target
            (file+head
-            "reference/${citar-citekey}.org"
-            "#+title: ${note-title}.\n#+created: %U\n#+last_modified: %U\n\n")
-           :unnarrowed t)))
+            "main/${slug}.org"
+            "#+title: ${title}\n#+filetags: :empty:\n")
+           :immediate-finish t
+           :unarrowed t)))
   :bind (("C-c r l" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
          ("C-c r g" . org-roam-graph)
@@ -98,7 +183,8 @@
          ("C-c r c" . org-roam-capture)
          ("C-c r d" . org-roam-dailies-goto-today)
          :map org-mode-map
-         ("M-/" . org-roam-node-insert))
+         ("M-/" . org-roam-node-insert)
+         ("C-c t" . org-roam-tag-add))
   :config
   (org-roam-db-autosync-mode)
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
@@ -117,9 +203,16 @@
     (org-roam-tag-add '("draft")))
   (add-hook 'org-roam-capture-new-node-hook #'my/tag-new-node-as-draft))
 
+(use-package org-roam-ui)
+
 (use-package citar
   :custom
-  (citar-bibliography '("~/sync/My Library.bib"))
+  (org-cite-global-bibliography '("~/sync/My Library.bib"))
+  (citar-bibliography org-cite-global-bibliography)
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  :bind (:map org-mode-map :package org ("C-c b" . #'org-cite-insert))
   :config
   (defun my/org-roam-node-from-cite (keys-entries)
     (interactive (list (citar-select-ref)))
@@ -135,21 +228,22 @@
                          :node (org-roam-node-create :title title)
                          :props '(:finalize find-file)))))
 
-;; (use-package citar-org-roam
-;;   :after citar
-;;   :bind (("C-c r r" . citar-open-notes))
-;;   :custom
-;;   (citar-org-roam-note-title-template "${title}")
-;;   (citar-org-roam-capture-template-key "r")
-;;   :config
-;;   (citar-org-roam-mode)
-;;   )
-
 (use-package org-download
   :bind ((:map org-mode-map
 	 ("C-c v" . 'org-download-clipboard)))
   :custom
   (org-download-image-dir "~/sync/notes/org/images"))
+
+(use-package org-modern
+  :config
+  (add-hook 'org-mode-hook #'org-modern-mode)
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka"))
+
+(use-package olivetti
+  :custom
+  (olivetti-body-width 120)
+  :config
+  (add-hook 'org-agenda-mode-hook #'olivetti-mode))
 
 (use-package org-alert
   :ensure t
@@ -206,9 +300,9 @@
   (minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt))
 
-  (display-buffer-base-action
-   '((display-buffer-reuse-window display-buffer-same-window)
-     (reusable-frames . t)))
+  ;; (display-buffer-base-action
+  ;;  '((display-buffer-reuse-window display-buffer-same-window)
+  ;;    (reusable-frames . t)))
 
   (even-window-sizes nil)     ; avoid resizing
 
@@ -258,7 +352,9 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
-  (setq default-frame-alist '((font . "Iosevka-14")))
+  ;; (setq default-frame-alist '((font . "Iosevka-14")))
+  (set-face-attribute 'default nil :family "Iosevka" :height 135)
+  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 135)
 
   (define-prefix-command 'my/window-map)
   (bind-key "C-c w" my/window-map)
@@ -278,7 +374,45 @@
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
-               "~/.emacs.d/themes/"))
+               "~/.emacs.d/themes/")
+  (load-theme 'modus-operandi))
+
+(use-package stimmung-themes)
+
+(use-package dbus
+  :straight (:type built-in)
+  :config
+  (defun my/set-theme-from-dbus-value (value)
+    "Set the appropiate theme according to the color-scheme setting value."
+    (message "value is %s" value)
+    (if (equal value '1)
+        (progn (message "Switch to dark theme")
+               (modus-themes-load-theme 'modus-vivendi))
+      (progn (message "Switch to light theme")
+             (modus-themes-load-theme 'modus-operandi))))
+  (defun my/color-scheme-changed (path var value)
+    "DBus handler to detect when the color-scheme has changed."
+    (when (and (string-equal path "org.freedesktop.appearance")
+               (string-equal var "color-scheme"))
+      (my/set-theme-from-dbus-value (car value))
+      ))
+
+  ;; Register for future changes
+  (dbus-register-signal
+   :session "org.freedesktop.portal.Desktop"
+   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+   "SettingChanged"
+   #'my/color-scheme-changed)
+
+  ;; Request the current color-scheme
+  (dbus-call-method-asynchronously
+   :session "org.freedesktop.portal.Desktop"
+   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+   "Read"
+   (lambda (value) (my/set-theme-from-dbus-value (caar value)))
+   "org.freedesktop.appearance"
+   "color-scheme"
+   ))
 
 (use-package hydra)
 
@@ -350,7 +484,7 @@
      '("B" . meow-back-symbol)
      '("c" . meow-change)
      '("d" . meow-kill)
-     '("D" . fixup-whitespace)
+     '("D" . my/page-down)
      '("e" . meow-next-word)
      '("E" . meow-next-symbol)
      '("f" . meow-find)
@@ -366,8 +500,7 @@
      '("K" . meow-prev-expand)
      '("l" . meow-right)
      '("L" . meow-right-expand)
-     '("m" . my/page-up)
-     '("M" . hydra-surround/body)
+     '("m" . hydra-surround/body)
      '("n" . meow-search)
      '("o" . meow-block)
      '("O" . meow-to-block)
@@ -378,8 +511,8 @@
      '("R" . meow-swap-grab)
      '("t" . meow-till)
      '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . my/page-down)
+     '("U" . my/page-up)
+     '("v" . my/page-down) ;; TODO change this
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
@@ -411,7 +544,6 @@
 
 (use-package magit
   :bind (("C-c g" . 'magit)))
-
 
 (use-package vertico
   ;; :custom
@@ -654,11 +786,11 @@
   :config
   (pdf-tools-install))
 
+(use-package direnv)
+
 ;; Programming modes!
 
 (use-package rust-mode)
-
-(use-package direnv)
 
 (use-package nix-mode
   :mode "\\.nix\\'")
