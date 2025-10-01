@@ -75,6 +75,10 @@
     firefox
     chromium
 
+    file
+    zip
+    unzip
+    ffmpeg
 
     pavucontrol
     vlc
@@ -89,11 +93,6 @@
     ghc
     ghcid
 
-    mangohud
-
-    zip
-    unzip
-
     piper
 
     remmina
@@ -103,6 +102,7 @@
     qmk
 
     prismlauncher
+    mangohud
   ];
 
   services.emacs.enable = true;

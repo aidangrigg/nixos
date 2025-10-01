@@ -67,6 +67,9 @@
   # enable logitech mouse configuration
   services.ratbagd.enable = true;
 
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   programs.nh = {
     enable = true;
   };
