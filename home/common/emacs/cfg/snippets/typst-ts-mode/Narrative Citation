@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Narrative Citation
+# key: cn
+# --
+#cite(<$1>, form: "prose")
