@@ -1,7 +1,7 @@
-# -*- mode: org -*-
+# -*- mode: snippet -*-
 # name: eq
 # key: eq
 # --
-\begin{equation}
-${1}
-\end{equation}
+\begin{flalign*}
+$1
+\end{flalign*}

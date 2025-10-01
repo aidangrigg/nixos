@@ -53,6 +53,7 @@
   (org-log-repeat nil)
   (org-hide-leading-stars t)
   (org-latex-preview-ltxpng-directory "~/.cache/org-ltximg")
+  (org-startup-with-latex-preview t)
   (org-capture-templates
    '(("t" "Task" entry
       (file+olp "~/sync/notes/org/tasks.org" "Inbox")
@@ -71,24 +72,30 @@
   (org-agenda-time-grid
         '((daily today require-timed)
           ()
-          "......" "----------------"))
+          "     " "----------------"))
   (org-agenda-current-time-string "   now")
   (org-agenda-compact-blocks nil)
   (org-agenda-hide-tags-regexp ".")
   :config
+  ;; agenda stuff
   (setq org-agenda-block-separator nil)
   (setq org-agenda-custom-commands
         '(("d" "Daily Agenda"
            ((agenda "" ((org-agenda-span 'day)
                         (org-agenda-prefix-format "  %?-12t% s")
-                        (org-agenda-include-deadlines nil)))
+                        (org-deadline-warning-days 1)))
+            (agenda nil ((org-agenda-entry-types '(:timestamp))
+                         (org-agenda-format-date "%a [%x]")
+                         (org-agenda-span 'week)
+                         (org-agenda-prefix-format "  %?t")
+                         (org-agenda-overriding-header "\nUpcoming Events\n")))
             (agenda nil ((org-agenda-entry-types '(:deadline))
                          (org-agenda-format-date "")
                          (org-agenda-span 0)
                          (org-deadline-warning-days 60)
                          (org-agenda-prefix-format " %6s [%8T] ")
-                         (org-agenda-deadline-leaders '("Deadline: " "(%dd.)" "(+%dd.)"))
-                         (org-agenda-overriding-header "\nUpcoming")))
+                         (org-agenda-deadline-leaders '("[DUE]" "(%dd.)" "(+%dd.)"))
+                         (org-agenda-overriding-header "\nUpcoming Deadlines")))
             (tags-todo "+university"
                        ((org-agenda-overriding-header "\nUniversity\n")
                         (org-agenda-prefix-format " [%8T] ")))
@@ -98,65 +105,14 @@
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5))
   (add-to-list 'org-modules 'org-habit t)
+  ;; org mode hooks
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (add-hook 'org-mode-hook 'org-indent-mode)
   ;; Babel stuff
   (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
 			       (haskell . t)
 			       (shell . t))))
-
-;; (use-package org-super-agenda
-;;   :custom
-;;   (org-super-agenda-groups
-;;    '((:name "Today"
-;;             :time-grid t
-;;             :date today
-;;             :scheduled today
-;;             :deadline today
-;;             :face 'warning)
-;;      (:name "Upcoming"
-;;             :deadline future)
-;;      (:name "Overdue"
-;;             :deadline past
-;;             :scheduled past
-;;             :face 'error)
-;;      (:name "University"
-;;             :tag "university")
-;;      )))
-
-;; (use-package org-ql
-;;   :after org
-;;   :config
-;;   (setq org-ql-views
-;;         (list (cons "Today"
-;;                     (list :buffers-files #'org-agenda-files
-;;                           :query `(or (closed :on today)
-;;                                       (and (habit)
-;;                                            (not (done))
-;;                                            (scheduled :to today))
-;;                                       (and ,ha-org-ql-typical-work-tasks
-;;                                            (or (deadline auto)
-;;                                                (todo "DOING")
-;;                                                (scheduled :to today)
-;;                                                (ts-active :on today))))
-;;                           :sort '(priority date)
-;;                           :super-groups 'ha-org-super-agenda-today
-;;                           :title "Today in Me"))
-
-;;               (cons "Overview: Tomorrow"
-;;                     (list :buffers-files #'org-agenda-files
-;;                           :query '(and (not (done))
-;;                                        (tags "work")
-;;                                        (scheduled :from tomorrow :to tomorrow))
-;;                           :sort '(priority date)
-;;                           :super-groups 'ha-org-super-agenda-today
-;;                           :title "Overview: Tomorrow's tasks"))
-
-;;               (cons "Calendar: Today"
-;;                     (list :buffers-files #'org-agenda-files
-;;                           :query '(ts-active :on today)
-;;                           :title "Today"
-;;                           :super-groups 'ha-org-super-agenda-today
-;;                           :sort '(priority))))))
 
 (use-package org-roam
   :custom
@@ -212,7 +168,10 @@
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
-  :bind (:map org-mode-map :package org ("C-c b" . #'org-cite-insert))
+  :bind ((:map org-mode-map
+               ("C-c b" . #'org-cite-insert)
+               :map typst-ts-mode-map
+               ("C-c c" . 'citar-insert-keys)))
   :config
   (defun my/org-roam-node-from-cite (keys-entries)
     (interactive (list (citar-select-ref)))
@@ -234,16 +193,17 @@
   :custom
   (org-download-image-dir "~/sync/notes/org/images"))
 
-(use-package org-modern
-  :config
-  (add-hook 'org-mode-hook #'org-modern-mode)
-  (set-face-attribute 'org-modern-symbol nil :family "Iosevka"))
+;; (use-package org-modern
+;;   :config
+;;   (add-hook 'org-mode-hook #'org-modern-mode)
+;;   (set-face-attribute 'org-modern-symbol nil :family "Iosevka"))
 
 (use-package olivetti
   :custom
   (olivetti-body-width 120)
   :config
-  (add-hook 'org-agenda-mode-hook #'olivetti-mode))
+  (add-hook 'org-agenda-mode-hook #'olivetti-mode)
+  (add-hook 'org-mode-hook #'olivetti-mode))
 
 (use-package org-alert
   :ensure t
@@ -258,11 +218,23 @@
 
 (use-package org-appear
   :custom
+  (org-hide-emphasis-markers t)
   (org-appear-autoemphasis t)
   (org-appear-autolinks t)
   (org-appear-inside-latex t)
   (org-appear-autosubmarkers t)
-  :hook ((org-mode . org-appear-mode)))
+  :hook ((org-mode . org-appear-mode))
+  :config
+  (setq org-appear-trigger 'manual)
+  (add-hook 'org-mode-hook (lambda ()
+                             (add-hook 'meow-insert-enter-hook
+                                       #'org-appear-manual-start
+                                       nil
+                                       t)
+                             (add-hook 'meow-insert-exit-hook
+                                       #'org-appear-manual-stop
+                                       nil
+                                       t))))
 
 (use-package auctex
   :custom
@@ -291,6 +263,7 @@
          ("v" . split-window-vertically)
          ("d" . delete-other-windows))
   :custom
+
   (enable-recursive-minibuffers t)
   ;; Hide commands in M-x which do not work in the current mode.  Vertico
   ;; commands are hidden in normal buffers. This setting is useful beyond
@@ -352,9 +325,15 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
+  (set-face-attribute 'default nil :family "Iosevka" :height 120)
+  (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 120)
+
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
+   '(fixed-pitch ((t ( :family "Iosevka" :height 120 :weight normal)))))
   ;; (setq default-frame-alist '((font . "Iosevka-14")))
-  (set-face-attribute 'default nil :family "Iosevka" :height 135)
-  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 135)
 
   (define-prefix-command 'my/window-map)
   (bind-key "C-c w" my/window-map)
@@ -375,9 +354,20 @@
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
                "~/.emacs.d/themes/")
-  (load-theme 'modus-operandi))
 
-(use-package stimmung-themes)
+  (setq line-spacing 0.1)
+
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-mixed-fonts t)
+
+  (setq modus-themes-headings
+        (quote ((1 . (1.5))
+                (2 . (1.3))
+                (3 . (1.1))
+                (4 . (1.1)))))
+
+  (load-theme 'modus-operandi))
 
 (use-package dbus
   :straight (:type built-in)
@@ -712,6 +702,11 @@
   :custom
   (eglot-code-action-indicator "")
   (eglot-ignored-server-capabilities '(:inlayHintProvider))
+  :config
+  (add-to-list 'eglot-server-programs
+               `(typst-ts-mode . ,(eglot-alternatives
+                                   '(("tinymist")
+                                     ("typst-lsp")))))
   :bind((:map eglot-mode-map
               ("C-c l a"  . eglot-code-actions)
               ("C-c l e"  . flymake-show-diagnostics-buffer)

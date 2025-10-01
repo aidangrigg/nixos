@@ -6,6 +6,7 @@
     roboto-mono
     iosevka-bin
     (iosevka-bin.override { variant = "Aile"; })
+    etBook
     terminus_font
     siji
   ];
