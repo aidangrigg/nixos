@@ -162,6 +162,7 @@
 (use-package org-roam-ui)
 
 (use-package citar
+  :after typst-ts-mode
   :custom
   (org-cite-global-bibliography '("~/sync/My Library.bib"))
   (citar-bibliography org-cite-global-bibliography)
@@ -369,7 +370,10 @@
 
   (load-theme 'modus-operandi))
 
+(use-package gruvbox-theme)
+
 (use-package dbus
+  :after gruvbox
   :straight (:type built-in)
   :config
   (defun my/set-theme-from-dbus-value (value)
@@ -377,16 +381,17 @@
     (message "value is %s" value)
     (if (equal value '1)
         (progn (message "Switch to dark theme")
-               (modus-themes-load-theme 'modus-vivendi))
+               ;; (modus-themes-load-theme 'modus-vivendi))
+               (consult-theme 'gruvbox-dark-hard))
       (progn (message "Switch to light theme")
-             (modus-themes-load-theme 'modus-operandi))))
+             ;; (modus-themes-load-theme 'modus-operandi))))
+             (consult-theme 'gruvbox-light-hard))))
   (defun my/color-scheme-changed (path var value)
     "DBus handler to detect when the color-scheme has changed."
     (when (and (string-equal path "org.freedesktop.appearance")
                (string-equal var "color-scheme"))
       (my/set-theme-from-dbus-value (car value))
       ))
-
   ;; Register for future changes
   (dbus-register-signal
    :session "org.freedesktop.portal.Desktop"
@@ -675,27 +680,7 @@
   :config
   (setq which-key-idle-delay 0.3))
 
-;; LSP Tings
-
-;; (use-package lsp-mode
-;;   :preface
-;;   :bind ((:map lsp-mode-map
-;; 	       ("C-c l a" . lsp-execute-code-action)
-;; 	       ("C-c l e" . flymake-show-diagnostics-buffer)
-;; 	       ("M-q"     . lsp-format-buffer)
-;; 	       ("C-c l r" . lsp-rename)))
-;;   ;; :hook ((rust-mode . lsp)
-;;   ;;        (js-mode . lsp)
-;;   ;;        (typescript-ts-mode . lsp)
-;;   ;;        (tsx-ts-mode . lsp)
-;;   ;;        (c++-ts-mode . lsp))
-;;   :config
-;;   (setq lsp-fsharp-use-dotnet-tool-for-fsac nil))
-
-;; (use-package lsp-ui
-;;   :after lsp-mode
-;;   :bind ((:map lsp-ui-mode-map
-;; 	       ("C-c k" . lsp-ui-doc-glance))))
+;; LSP
 
 (use-package eglot
   :straight (:type built-in)
@@ -742,30 +727,6 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
-
-;; (use-package company
-;;   :bind ((:map company-mode-map
-;; 	       ("M-/" . company-complete)
-;; 	  :map company-active-map
-;;                ("TAB" . company-complete-selection)
-;;                ("C-j" . company-select-next)
-;;                ("C-k" . company-select-previous))
-;;          (:map company-search-map
-;;                ("TAB" . company-complete-selection)
-;;                ("C-j" . company-select-next)
-;;                ("C-k" . company-select-previous)))
-;;   :custom
-;;   (global-company-mode 1)
-;;   (company-global-modes
-;;    '(not text-mode message-mode git-commit-mode org-mode magit-status-mode))
-;;   (company-idle-delay nil)
-;;   (company-require-match nil)
-;;   (company-show-numbers t)
-;;   (company-tooltip-align-annotations t)
-;;   (company-tooltip-limit 10)
-;;   (company-tooltip-minimum 10)
-;;   (company-format-margin-function nil)
-;;   (company-tooltip-minimum-width 50))
 
 (use-package editorconfig
   :ensure t
@@ -819,5 +780,3 @@
         ("M-q" . zig-format-buffer))
   :custom
   (zig-format-on-save nil))
-
-
