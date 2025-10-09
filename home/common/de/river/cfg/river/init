@@ -16,9 +16,34 @@ riverctl map normal Super I spawn "${scripts_path}/info-notif.sh"
 riverctl spawn rivertile
 riverctl output-layout rivertile
 
-for i in $(seq 1 9)
+riverctl focus-follows-cursor normal
+
+# bemenu-run -c -W 0.5 -l 20
+
+web_tag=$((1 << 0))
+emacs_tag=$((1 << 1))
+terminal_tag=$((1 << 2))
+
+riverctl rule-add -app-id foot tags $terminal_tag
+riverctl rule-add -app-id Emacs tags $emacs_tag
+riverctl rule-add -app-id firefox tags $web_tag
+
+riverctl spawn emacs
+riverctl spawn foot
+riverctl spawn firefox
+
+riverctl map normal Super W set-focused-tags $web_tag
+riverctl map normal Super+Shift W toggle-focused-tags $web_tag
+
+riverctl map normal Super E set-focused-tags $emacs_tag
+riverctl map normal Super+Shift E toggle-focused-tags $emacs_tag
+
+riverctl map normal Super S set-focused-tags $terminal_tag
+riverctl map normal Super+Shift S toggle-focused-tags $terminal_tag
+
+for i in $(seq 1 5)
 do
-    tags=$((1 << ($i - 1)))
+    tags=$((1 << ($i + 2)))
 
     # Super+[1-9] to focus tag [0-8]
     riverctl map normal Super $i set-focused-tags $tags
@@ -32,21 +57,6 @@ do
     # Super+Shift+Control+[1-9] to toggle tag [0-8] of focused view
     riverctl map normal Super+Shift+Control $i toggle-view-tags $tags
 done
-
-emacs_tag=$((1 << 30))
-web_tag=$((1 << 31))
-
-riverctl rule-add -app-id Emacs tags $emacs_tag
-riverctl rule-add -app-id firefox tags $web_tag
-
-riverctl spawn emacs
-riverctl spawn firefox
-riverctl spawn mako
-
-riverctl map normal Super E set-focused-tags $emacs_tag
-riverctl map normal Super W set-focused-tags $web_tag
-riverctl map normal Super+Shift E toggle-focused-tags $emacs_tag
-riverctl map normal Super+Shift W toggle-focused-tags $web_tag
 
 # Super+0 to focus all tags
 # Super+Shift+0 to tag focused view with all tags
@@ -75,14 +85,19 @@ do
     riverctl map $mode None XF86MonBrightnessDown spawn 'brightnessctl set 5%-'
 done
 
-# riverctl spawn "swaybg -c fbf1c7"
-riverctl border-color-focused '0xf57575'
+riverctl spawn "swaybg -c fbf1c7"
+riverctl border-color-focused '0x000000'
 riverctl border-color-unfocused '0x00000000'
-riverctl border-width 3
+riverctl border-width 1
 
 riverctl set-repeat 50 300
 
 riverctl keyboard-layout -options "ctrl:swapcaps" "us"
+
+riverctl spawn mako
+riverctl spawn waybar
+
+riverctl rule-del -app-id foot tags
 
 ### SYSTEMD INTEGRATION ###
 dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP NIXOS_OZONE_WL XCURSOR_THEME XCURSOR_SIZE && systemctl --user stop river-session.target && systemctl --user start river-session.target

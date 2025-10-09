@@ -73,6 +73,9 @@
     enable = true;
   };
 
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   # audio
   security.rtkit.enable = true; # Enable RealtimeKit for audio purposes
 
@@ -127,6 +130,7 @@
     vim
     wget
     which
+    bluetuith
   ]);
 
   users.users.aidan = {

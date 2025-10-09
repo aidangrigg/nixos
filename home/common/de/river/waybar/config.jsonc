@@ -1,0 +1,138 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 32,
+  "modules-left": [
+    "river/tags",
+  ],
+  "modules-center": [
+    "river/window"
+  ],
+  "modules-right": [
+    "network",
+    "pulseaudio",
+    "battery",
+    "tray",
+    "clock",
+  ],
+  "battery": {
+    "interval": 10,
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    // Connected to AC
+    "format": "{icon}  {capacity}%", // Icon: bolt
+    // Not connected to AC
+    "format-discharging": "{icon}  {capacity}%",
+    "format-icons": [
+      "", // Icon: battery-full
+      "", // Icon: battery-three-quarters
+      "", // Icon: battery-half
+      "", // Icon: battery-quarter
+      ""  // Icon: battery-empty
+    ],
+    "tooltip": true
+  },
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%A, %B %d, %Y (%R)}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode"          : "year",
+      "mode-mon-col"  : 3,
+      "weeks-pos"     : "right",
+      "on-scroll"     : 1,
+      "format": {
+        "months":     "<span color='#ffead3'><b>{}</b></span>",
+        "days":       "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
+        "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions":  {
+      "on-click-right": "mode",
+      "on-scroll-up": "tz_up",
+      "on-scroll-down": "tz_down",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+  "cpu": {
+    "interval": 5,
+    "format": "  {usage}% ({load})", // Icon: microchip
+    "states": {
+      "warning": 70,
+      "critical": 90
+    }
+  },
+  "memory": {
+    "interval": 5,
+    "format": "  {}%", // Icon: memory
+    "states": {
+      "warning": 70,
+      "critical": 90
+    }
+  },
+  "network": {
+    "interval": 5,
+    "format-wifi": "  {essid} ({signalStrength}%)", // Icon: wifi
+    "format-ethernet": "  {ifname}: {ipaddr}/{cidr}", // Icon: ethernet
+    "format-disconnected": "⚠  Disconnected",
+    "tooltip-format": "{ifname}: {ipaddr}"
+  },
+  // "river/mode": {
+  //   "format": "<span style=\"italic\">  {}</span>", // Icon: expand-arrows-alt
+  //   "tooltip": false
+  // },
+
+  "river/window": {
+    "format": "{}",
+    "max-length": 120
+  },
+
+  "river/tags": {
+    "num-tags": 8,
+    "tag-labels": [
+      "  www",
+      "𝓔  emacs",
+      "  terminal",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+  },
+  "pulseaudio": {
+     "format": "{icon}  {volume}%",
+     "format-bluetooth": "{icon}  {volume}% ",
+     "format-muted": "",
+     "format-icons": {
+         "headphones": "",
+         "handsfree": "",
+         "headset": "",
+         "default": ["", ""]
+     },
+     "on-click": "pavucontrol"
+  },
+  "temperature": {
+    "critical-threshold": 80,
+    "interval": 5,
+    "format": "{icon}  {temperatureC}°C",
+    "format-icons": [
+      "", // Icon: temperature-empty
+      "", // Icon: temperature-quarter
+      "", // Icon: temperature-half
+      "", // Icon: temperature-three-quarters
+      ""  // Icon: temperature-full
+    ],
+    "tooltip": true
+  },
+
+  "tray": {
+    "icon-size": 21,
+    "spacing": 10
+  }
+}
