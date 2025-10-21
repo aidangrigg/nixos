@@ -34,14 +34,22 @@
   (defun my/project-agenda ()
     (interactive)
     (let ((org-agenda-files
-	   (list
-	    (concat "~/sync/notes/org/projects/"
-		    (concat (projectile-project-name) ".org")))))
+	   (list (concat "~/sync/notes/org/projects/"
+		         (projectile-project-name)
+                         ".org"))))
       (call-interactively #'org-agenda)))
-  :bind (("C-c o a" . 'org-agenda)
-	 ("C-c o c" . 'org-capture)
-	 ("C-c o f" . 'my/project-orgfile)
-	 ("C-c o p" . 'my/project-agenda))
+  (defun my/daily-agenda ()
+    (interactive)
+    (org-agenda nil "d"))
+  (defun my/overview-agenda ()
+    (interactive)
+    (org-agenda nil "o"))
+  :bind (("C-c o a" . org-agenda)
+	 ("C-c o c" . org-capture)
+	 ("C-c o f" . my/project-orgfile)
+	 ("C-c o p" . my/project-agenda)
+	 ("C-c o d" . my/daily-agenda)
+	 ("C-c o o" . my/overview-agenda))
   :custom
   (org-agenda-window-setup 'only-window); agenda takes whole window
   (org-agenda-restore-windows-after-quit t); restore window configuration on exit
@@ -59,8 +67,8 @@
       (file+olp "~/sync/notes/org/tasks.org" "Inbox")
       "* TODO %?\n" :empty-lines 1)))
   (org-agenda-files
-	'("~/sync/notes/org/tasks.org"
-	  "~/sync/notes/org/mobile.org"))
+   '("~/sync/notes/org/tasks.org"
+     "~/sync/notes/org/mobile.org"))
   (org-icalendar-include-todo t)
   (org-icalendar-use-scheduled '(todo-start event-if-todo))
   (org-icalendar-use-deadline '(todo-due event-if-todo))
@@ -70,9 +78,9 @@
   (org-agenda-skip-scheduled-if-done t)
   (org-agenda-skip-timestamp-if-deadline-is-shown t)
   (org-agenda-time-grid
-        '((daily today require-timed)
-          ()
-          "     " "----------------"))
+   '((daily today require-timed)
+     ()
+     "     " "----------------"))
   (org-agenda-current-time-string "   now")
   (org-agenda-compact-blocks nil)
   (org-agenda-hide-tags-regexp ".")
@@ -80,7 +88,7 @@
   ;; agenda stuff
   (setq org-agenda-block-separator nil)
   (setq org-agenda-custom-commands
-        '(("d" "Daily Agenda"
+        '(("o" "Overview"
            ((agenda "" ((org-agenda-span 'day)
                         (org-agenda-prefix-format "  %?-12t% s")
                         (org-deadline-warning-days 1)))
@@ -98,8 +106,13 @@
                          (org-agenda-overriding-header "\nUpcoming Deadlines")))
             (tags-todo "+university"
                        ((org-agenda-overriding-header "\nUniversity\n")
-                        (org-agenda-prefix-format " [%8T] ")))
-            ))
+                        (org-agenda-prefix-format " [%8T] ")))))
+          ("d" "Daily goals"
+           ((agenda "" ((org-agenda-files
+                         (list (concat
+                                org-roam-directory "/" org-roam-dailies-directory
+                                (format-time-string "%Y-%m-%d") ".org")))
+                        (org-agenda-skip-schedule-if-done nil)))))
           ))
   (add-hook 'org-agenda-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
   (setq org-format-latex-options
@@ -108,11 +121,13 @@
   ;; org mode hooks
   (add-hook 'org-mode-hook 'variable-pitch-mode)
   (add-hook 'org-mode-hook 'org-indent-mode)
+  (setq org-plantuml-exec-mode 'plantuml)
   ;; Babel stuff
   (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
 			       (haskell . t)
-			       (shell . t))))
+			       (shell . t)
+			       (plantuml . t))))
 
 (use-package org-roam
   :custom
@@ -354,23 +369,30 @@
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
-               "~/.emacs.d/themes/")
+               "~/.emacs.d/themes/"))
 
-  (setq line-spacing 0.1)
+(use-package gruvbox-theme)
 
+(use-package ef-themes
+  :ensure t
+  :init
+  ;; This makes the Modus commands listed below consider only the Ef
+  ;; themes.  For an alternative that includes Modus and all
+  ;; derivative themes (like Ef), enable the
+  ;; `modus-themes-include-derivatives-mode' instead.
+  (ef-themes-take-over-modus-themes-mode 1)
+  :config
+  ;; All customisations here.
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs t
-        modus-themes-mixed-fonts t)
+        modus-themes-mixed-fonts t
+        line-spacing 0.1)
 
   (setq modus-themes-headings
         (quote ((1 . (1.5))
                 (2 . (1.3))
                 (3 . (1.1))
-                (4 . (1.1)))))
-
-  (load-theme 'modus-operandi))
-
-(use-package gruvbox-theme)
+                (4 . (1.1))))))
 
 (use-package dbus
   :after gruvbox
@@ -381,11 +403,11 @@
     (message "value is %s" value)
     (if (equal value '1)
         (progn (message "Switch to dark theme")
-               ;; (modus-themes-load-theme 'modus-vivendi))
-               (consult-theme 'gruvbox-dark-hard))
+               (modus-themes-load-theme 'ef-tritanopia-dark))
+               ;; (consult-theme 'gruvbox-dark-hard))
       (progn (message "Switch to light theme")
-             ;; (modus-themes-load-theme 'modus-operandi))))
-             (consult-theme 'gruvbox-light-hard))))
+             (modus-themes-load-theme 'ef-day))))
+             ;; (consult-theme 'gruvbox-light-hard))))
   (defun my/color-scheme-changed (path var value)
     "DBus handler to detect when the color-scheme has changed."
     (when (and (string-equal path "org.freedesktop.appearance")
@@ -691,7 +713,10 @@
   (add-to-list 'eglot-server-programs
                `(typst-ts-mode . ,(eglot-alternatives
                                    '(("tinymist")
-                                     ("typst-lsp")))))
+                                     ("typst-lsp"))))
+               `(python-mode . ,(eglot-alternatives
+                                 '(("pylsp")
+                                   ("pyright")))))
   :bind((:map eglot-mode-map
               ("C-c l a"  . eglot-code-actions)
               ("C-c l e"  . flymake-show-diagnostics-buffer)

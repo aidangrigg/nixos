@@ -17,6 +17,7 @@
     ./common/productivity
     ./common/modelling
     ./common/music
+    ./common/gaming
   ];
 
   nixpkgs = {

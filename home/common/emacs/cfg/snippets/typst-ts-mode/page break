@@ -2,5 +2,5 @@
 # name: page break
 # key: pb
 # --
-\#pagebreak()
+#pagebreak()
 $1

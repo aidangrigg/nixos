@@ -1,7 +1,12 @@
 { pkgs, ... }: {
   imports = [ ./latex.nix ];
 
-  programs.zathura.enable = true;
+  programs.zathura = {
+    enable = true;
+    options = {
+      selection-clipboard = "clipboard";
+    };
+  };
 
   home.packages = with pkgs; [
     xournalpp
@@ -10,5 +15,6 @@
     pdfpc
     libreoffice
     zotero
+    plantuml
   ];
 }

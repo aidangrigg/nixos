@@ -76,6 +76,7 @@
 
   # audio
   security.rtkit.enable = true; # Enable RealtimeKit for audio purposes
+  security.polkit.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -195,12 +196,44 @@
     docker.enable = true;
   };
 
+
+  # Set up virtualisation
+  virtualisation.libvirtd = {
+    enable = true;
+
+    # Enable TPM emulation (for Windows 11)
+    qemu = {
+      package = pkgs.qemu_kvm;
+      ovmf = {
+        enable = true;
+        packages = [pkgs.OVMFFull.fd];
+      };
+      swtpm.enable = true;
+    };
+  };
+
+  # Enable USB redirection
+  virtualisation.spiceUSBRedirection.enable = true;
+
+  # Allow VM management
+  users.groups.libvirtd.members = [ "aidan" ];
+  users.groups.kvm.members = [ "aidan" ];
+
+  # if you use libvirtd on a desktop environment
+  programs.virt-manager.enable = true; # can be used to manage non-local hosts as well
+
   services.gvfs.enable = true;
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [  ];
+    allowedTCPPorts = [ 8086 ];
     allowedUDPPorts = [  ];
+    allowedUDPPortRanges = [
+      { from = 16571; to = 16604; }
+    ];
+    allowedTCPPortRanges = [
+      { from = 16572; to = 16604; }
+    ];
   };
 
   # services.tailscale.enable = true;
@@ -222,6 +255,8 @@
     enable = true;
     package = pkgs.wireshark;
   };
+
+  services.influxdb2.enable = true;
 
   environment.systemPackages = (with pkgs; [
     git
