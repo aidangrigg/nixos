@@ -18,6 +18,7 @@
     ./common/modelling
     ./common/music
     ./common/gaming
+    ./common/productivity/qutebrowser.nix
   ];
 
   nixpkgs = {
@@ -104,6 +105,8 @@
 
     prismlauncher
     mangohud
+
+    kdePackages.kdenlive
   ];
 
   services.emacs.enable = true;
