@@ -92,7 +92,8 @@
            ((agenda "" ((org-agenda-span 'day)
                         (org-agenda-prefix-format "  %?-12t% s")
                         (org-deadline-warning-days 1)))
-            (agenda nil ((org-agenda-entry-types '(:timestamp))
+            (agenda nil ((org-deadline-warning-days 0)
+                         (org-agenda-entry-types '(:timestamp :scheduled :deadline))
                          (org-agenda-format-date "%a [%x]")
                          (org-agenda-span 'week)
                          (org-agenda-prefix-format "  %?t")
@@ -175,6 +176,12 @@
   (add-hook 'org-roam-capture-new-node-hook #'my/tag-new-node-as-draft))
 
 (use-package org-roam-ui)
+
+(use-package calfw-org
+  :custom
+  (calfw-display-calendar-holidays nil)
+  (calfw-org-overwrite-default-keybinding t)
+  :bind (("C-c o u" . calfw-org-open-calendar)))
 
 (use-package citar
   :after typst-ts-mode
@@ -467,11 +474,10 @@
     (meow-motion-overwrite-define-key
      '("j" . meow-next)
      '("k" . meow-prev)
+     '("D" . my/page-down)
+     '("U" . my/page-up)
      '("<escape>" . ignore))
     (meow-leader-define-key
-     ;; SPC j/k will run the original command in MOTION state.
-     '("j" . "H-j")
-     '("k" . "H-k")
      ;; Use SPC (0-9) for digit arguments.
      '("b" . consult-buffer)
      '("f" . consult-fd)
@@ -493,10 +499,9 @@
      '("1" . meow-expand-1)
      '("-" . negative-argument)
      '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
+     '("si" . meow-inner-of-thing)
+     '("so" . meow-bounds-of-thing)
      '("a" . meow-append)
-     '("A" . meow-open-below)
      '("b" . meow-back-word)
      '("B" . meow-back-symbol)
      '("c" . meow-change)
@@ -510,7 +515,8 @@
      '("h" . meow-left)
      '("H" . meow-left-expand)
      '("i" . meow-insert)
-     '("I" . meow-open-above)
+     '("O" . meow-open-above)
+     '("o" . meow-open-below)
      '("j" . meow-next)
      '("J" . meow-next-expand)
      '("k" . meow-prev)
@@ -519,8 +525,8 @@
      '("L" . meow-right-expand)
      '("m" . hydra-surround/body)
      '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
+     '("." . meow-block)
+     '(">" . meow-to-block)
      '("p" . meow-yank)
      '("q" . meow-quit)
      '("Q" . meow-goto-line)
@@ -529,7 +535,6 @@
      '("t" . meow-till)
      '("u" . meow-undo)
      '("U" . my/page-up)
-     '("v" . my/page-down) ;; TODO change this
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
@@ -805,3 +810,5 @@
         ("M-q" . zig-format-buffer))
   :custom
   (zig-format-on-save nil))
+
+(use-package go-mode)
