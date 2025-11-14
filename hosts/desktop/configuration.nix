@@ -155,6 +155,8 @@
     };
   };
 
+  services.speechd.enable = false;
+
   # screen lock
   programs.i3lock = {
     enable = true;
@@ -226,14 +228,14 @@
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 8086 ];
-    allowedUDPPorts = [  ];
-    allowedUDPPortRanges = [
-      { from = 16571; to = 16604; }
-    ];
-    allowedTCPPortRanges = [
-      { from = 16572; to = 16604; }
-    ];
+    allowedTCPPorts = [ ];
+    allowedUDPPorts = [ ];
+    # allowedUDPPortRanges = [
+    #   { from = 16571; to = 16604; }
+    # ];
+    # allowedTCPPortRanges = [
+    #   { from = 16572; to = 16604; }
+    # ];
   };
 
   # services.tailscale.enable = true;
@@ -241,7 +243,7 @@
   # This setups a SSH server. Very important if you're setting up a headless system.
   # Feel free to remove if you don't need it.
   services.openssh = {
-    enable = false;
+    enable = true;
     settings = {
       # Opinionated: forbid root login through SSH.
       PermitRootLogin = "no";
@@ -256,7 +258,18 @@
     package = pkgs.wireshark;
   };
 
-  services.influxdb2.enable = true;
+  # services.influxdb2.enable = true;
+  # services.grafana = {
+  #   enable = true;
+  #   settings = {
+  #     server = {
+  #       # Listening Address
+  #       http_addr = "0.0.0.0";
+  #       # and Port
+  #       http_port = 3000;
+  #     };
+  #   };
+  # };
 
   environment.systemPackages = (with pkgs; [
     git
