@@ -13,6 +13,11 @@
     };
   };
 
+  programs.fzf = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
   # direnv (for bash)
   programs.direnv = {
     enable = true;

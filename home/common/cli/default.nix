@@ -3,8 +3,10 @@
     ./bash.nix
     ./alacritty.nix
   ];
+
   home.packages = with pkgs; [
     ripgrep
+    fzf
     fd
     jq
     htop
