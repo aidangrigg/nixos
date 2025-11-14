@@ -8,6 +8,15 @@
     };
   };
 
+  xdg.desktopEntries = {
+    zathura = {
+      name = "Zathura";
+      genericName = "pdf viewer";
+      exec = "zathura %U";
+      terminal = false;
+    };
+  };
+
   home.packages = with pkgs; [
     xournalpp
     hunspell
@@ -16,5 +25,6 @@
     libreoffice
     zotero
     plantuml
+    anki-bin
   ];
 }
