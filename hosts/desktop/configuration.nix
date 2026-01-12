@@ -70,6 +70,7 @@
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
+
   programs.nh = {
     enable = true;
   };
@@ -98,10 +99,12 @@
   services.flatpak.enable = true;
   xdg.portal = {
     enable = true;
-    config.common.default = "*";
     extraPortals = with pkgs; [
+      # xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
     ];
+
+    config.common.default = "*";
   };
 
   i18n = {
@@ -117,6 +120,20 @@
       LC_TELEPHONE = "en_AU.UTF-8";
       LC_TIME = "en_AU.UTF-8";
     };
+  };
+
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [
+      cups-filters
+      cups-browsed
+    ];
   };
 
   programs.adb.enable = true;
@@ -155,8 +172,6 @@
     };
   };
 
-  services.speechd.enable = false;
-
   # screen lock
   programs.i3lock = {
     enable = true;
@@ -164,6 +179,24 @@
   };
 
   services.displayManager.defaultSession = "none+xmonad";
+
+  # SDDM Display Manager
+  # services.displayManager.sddm = {
+  #   enable = true;
+  #   wayland.enable = true;
+  # };
+
+  # # # Exclude certain default applications from being installed
+  # # environment.plasma6.excludePackages = with pkgs; [ kdePackages.<package> ];
+
+  # programs.hyprland = {
+  #   enable = true;
+  #   withUWSM = true;
+  #   xwayland.enable = true;
+  # };
+
+  # services.speechd.enable = false;
+
   programs.dconf.enable = true;
 
   services.libinput.mouse.accelProfile = "flat";
@@ -238,7 +271,7 @@
     # ];
   };
 
-  # services.tailscale.enable = true;
+  services.tailscale.enable = true;
 
   # This setups a SSH server. Very important if you're setting up a headless system.
   # Feel free to remove if you don't need it.
@@ -272,13 +305,27 @@
   # };
 
   environment.systemPackages = (with pkgs; [
+    btop-rocm
     git
     htop
     vim
     wget
     which
     blender-hip
+
+    lact
   ]);
+
+  # TODO: Update this when changing to 25.11
+  systemd.services.lact = {
+    description = "AMDGPU Control Daemon";
+    after = ["multi-user.target"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      ExecStart = "${pkgs.lact}/bin/lact daemon";
+    };
+    enable = true;
+  };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.05";

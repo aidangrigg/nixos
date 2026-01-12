@@ -55,17 +55,16 @@
 
   home.packages = with pkgs; [
     # browsers
-    firefox
     chromium
-    pavucontrol
-    mpv
-    inkscape
+    firefox
     gimp
+    inkscape
+    mpv
     nemo
-    zip
-    unzip
-    remmina
     networkmanagerapplet
+    pavucontrol
+    unzip
+    zip
   ];
 
   programs.bashmount.enable = true;

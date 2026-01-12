@@ -23,7 +23,6 @@
     pulseaudio
 
     dmenu
-
     xdotool
   ];
 
@@ -34,21 +33,6 @@
       haskellPackages.xmonad-contrib
       pkgs.pulseaudio
     ];
-  };
-
-  services.gammastep = {
-    enable = false;
-    provider = "manual";
-    latitude = -34.1;
-    longitude = 150.0;
-    settings = {
-      general = {
-        brightness-day = 1.0;
-        brightness-night = 0.9;
-      };
-    };
-    temperature.night = 3000;
-    temperature.day = 7000;
   };
 
   services.picom = {
@@ -63,20 +47,20 @@
         STATUS=$(${pkgs.mpc}/bin/mpc status | grep -oE '\[(playing|paused)\]')
         if [ $STATUS == "[playing]" ]; then
           # MPD is playing
-            echo "<fc=white><fn=1></fn>$(${pkgs.mpc}/bin/mpc current)</fc>"
+            echo "<fn=1></fn>$(${pkgs.mpc}/bin/mpc current)"
         fi
       '';
     in ''
-    Config { overrideRedirect = False
-             , font     = "Terminus 8"
+    Config { overrideRedirect  = False
+             , font            = "Iosevka 10"
              , additionalFonts = ["Siji 8"]
-             , textOffsets = [1]
-             , bgColor  =     "#222222"
-             , fgColor  =     "#555555"
-             , position = TopH 31
-             , textOffset = 0
+             , textOffsets     = [1]
+             , bgColor         = "#fff5ea"
+             , fgColor         = "#1c0810"
+             , position        = BottomH 32
+             , textOffset      = 0
              , commands =
-               [ Run Date "<fc=white>%A, %d/%m/%y [%H:%M]</fc>" "date" 10
+               [ Run Date "%A, %d/%m/%y [%H:%M]" "date" 10
                , Run UnsafeXMonadLog
                , Run Com "${music_script}" [] "mpd_script" 10
                ]

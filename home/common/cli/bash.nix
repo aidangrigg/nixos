@@ -1,4 +1,4 @@
-{
+{pkgs, ...}: {
   # bash
   programs.bash = {
     enable = true;
@@ -10,6 +10,7 @@
     shellAliases = {
       hms = "home-manager switch --flake ~/nix/#desktop";
       nrs = "sudo nixos-rebuild switch --flake ~/nix#desktop";
+      del = "${pkgs.trash-cli}/bin/trash";
     };
   };
 

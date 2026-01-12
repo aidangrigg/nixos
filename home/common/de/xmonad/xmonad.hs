@@ -1,5 +1,6 @@
 import           XMonad
 import           XMonad.Actions.CopyWindow
+import           XMonad.Actions.OnScreen
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops
 import           XMonad.Hooks.ManageDocks
@@ -12,7 +13,9 @@ import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.Tabbed
-import           XMonad.Layout.ToggleLayouts
+import           XMonad.Layout.MultiToggle
+import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.SimpleFloat
 import           XMonad.Prompt
 import           XMonad.Prompt.Input
 import           XMonad.Prompt.FuzzyMatch
@@ -31,8 +34,6 @@ import           XMonad.Util.Dmenu
 
 import           Data.List.NonEmpty (toList, NonEmpty)
 import           Data.Maybe
--- import           Data.Org
-import           Data.Time (Day, TimeOfDay(..), fromGregorian, showGregorian)
 import           Text.Printf (printf)
 
 import qualified Data.Text as T
@@ -47,11 +48,11 @@ emacs = "emacsclient -c"
 fileBrowser = "nemo"
 
 -- Colours
-fg, fgDim, mg, bg :: String
-fg = "#ffffff"
-fgDim = "#AAAAAA"
-mg = "#555555"
-bg = "#000000"
+fg, fgDim, hl, bg :: String
+fg = "#1c0810"
+fgDim = "#63728f"
+hl = "#71958d"
+bg = "#fffff2"
 
 data BrightnessState = BrightnessState { brightness :: Float }
 
@@ -67,7 +68,7 @@ main = xmonad
   $ myConfig
   where
     toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
-    toggleStrutsKey XConfig{ modMask = m } = (m, xK_c)
+    toggleStrutsKey XConfig{ modMask = m } = (m, xK_VoidSymbol)
 
 data Power = Power
 
@@ -115,9 +116,8 @@ adjustBrightness delta = do
     let newBrightness = brightness s + delta
     let clampedBrightness = max 0 (min 1.0 newBrightness)
     XS.put $ s { brightness = clampedBrightness }
-    spawn $ "xrandr --output DP-1 --brightness " ++ show clampedBrightness
+    spawn $ "xrandr --output HDMI-2 --brightness " ++ show clampedBrightness
     spawn $ "xrandr --output DP-2 --brightness " ++ show clampedBrightness
-
     spawn $ "notify-send -t 1000 -h int:value:"
       ++ show (clampedBrightness * 100)
       ++ " \"Brightness\""
@@ -144,7 +144,7 @@ activateScratchpad n =
 
 myConfig = def
     { modMask    = mod4Mask
-    , layoutHook = avoidStruts $ smartBorders $ myLayout
+    , layoutHook = myLayout
     , manageHook = myManageHook
     , normalBorderColor = "#222222"
     , focusedBorderColor = "#FFFFFF"
@@ -158,25 +158,26 @@ myConfig = def
     , ("M-e"                    , spawn Main.emacs)
     , ("M-x"                    , spawn Main.launcher)
     , ("M-q"                    , refresh)
-    , ("M-s"                    , spawn "maim -u | feh -F - & maim -s | xclip -selection clipboard -t image/png && kill $!")
+    , ("M-s"                    , spawn "maim -s | xclip -selection clipboard -t image/png")
     , ("M-S-s"                  , spawn "peek")
     , ("M-<U>"                  , adjustBrightness 0.05)
     , ("M-<D>"                  , adjustBrightness (-0.05))
     , ("M-S-e"                  , spawn fileBrowser)
-    , ("M-f"                    , sendMessage (Toggle "full") >> sendMessage ToggleStruts)
+    , ("M-S-f"                  , sendMessage (Toggle FULL) >> sendMessage ToggleStruts)
+    , ("M-f"                    , sendMessage $ Toggle TABBED)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
     , ("<XF86AudioLowerVolume>" , adjustVolume (-5))
     , ("M-S-p"                  , powerPrompt)
     , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
-    , ("M-o"                    , activateScratchpad "org")
-    , ("M-d"                    , activateScratchpad "discord")
-    , ("M-m"                    , activateScratchpad "ncmpcpp")
-    -- , ("M-e"                    , activateScratchpad "emacs")
+    , ("M-m"                    , activateScratchpad "music")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     , ("M-a"                    , switchAudioInput)
-    ]
+    ] ++ map (workspaceBinding 0) [1..7] ++ map (workspaceBinding 1) [8..9]
+    where workspaceBinding screenId ws =
+            let id = show ws
+            in ("M-" ++ id, windows $ viewOnScreen screenId id)
 
 -- Window rules
 rectCentered :: Rational -> W.RationalRect
@@ -185,10 +186,7 @@ rectCentered percentage = W.RationalRect offset offset percentage percentage
     offset = (1 - percentage) / 2
 
 myScratchpads =
-  [ NSP.NS "discord" "flatpak run com.discordapp.Discord" (className =? "discord") $ NSP.customFloating (rectCentered 0.8)
-  , NSP.NS "org" "emacs --title='orgmacs' --eval='(org-agenda-list) (org-alert-disable)' -g '140x40'" (title =? "orgmacs") $ NSP.customFloating (rectCentered 0.8)
-  , NSP.NS "ncmpcpp" "alacritty --title ncmpcpp -e ncmpcpp" (title =? "ncmpcpp") $ NSP.customFloating (rectCentered 0.9)
-  -- , NSP.NS "emacs" "emacs --title='emacsnsp'" (title =? "emacsnsp") NSP.nonFloating
+  [ NSP.NS "music" "alacritty --title music -e ncmpcpp" (title =? "music") $ NSP.customFloating (rectCentered 0.4)
   ]
 
 myManageHook :: ManageHook
@@ -201,46 +199,50 @@ myManageHook = composeAll
     ] <+> NSP.namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
-  spawnOnce "xrandr -r 165" -- refresh rate
-  spawnOnce "feh --bg-scale /home/aidan/images/background/cloud.png" -- background
+  spawnOnce "xrandr --output DP-2 --primary --mode 2560x1440 -r 165 && xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
+  spawnOnce "feh --bg-center /home/aidan/images/background/the-savage-state-1440p.png /home/aidan/images/background/savage-state-smol.jpg" -- background
   spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
+  spawnOnce "xset r rate 250 50"
   -- Fixes `xdg-open`. See here:
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
   setWMName "LG3D"
 
-my_half = Tall 1 (3/100) (1/2)
-my_twothirds = Tall 1 (3/100) (2/3)
-my_grid =  Grid
-my_tabbed = tabbedBottom shrinkText myTabConfig
-  where
-    myTabConfig = def { activeColor = fg
-                      , inactiveColor = bg
-                      , activeTextColor = bg
-                      , inactiveTextColor = fg
-                      , activeBorderColor = fg
-                      , inactiveBorderColor = bg
-                      , fontName = "Iosevka"
-                      , decoHeight = 20}
+data TABBED = TABBED deriving (Read, Show, Eq, Typeable)
 
+instance Transformer TABBED Window where
+    transform _ x k = k (tabbed shrinkText tabCfg) (const x)
+      where
+        tabCfg = def { activeColor = bg
+                     , inactiveColor = fg
+                     , activeTextColor = fg
+                     , inactiveTextColor = bg
+                     , activeBorderColor = ""
+                     , inactiveBorderColor = ""
+                     , fontName = "xft:Iosevka:size=12"
+                     , decoHeight = 32}
 
-myLayout = toggleLayouts (named "full" Full)
-  (named "1/2" my_half
-   ||| named "2/3" my_twothirds
-   ||| named "tabbed" my_tabbed
-   ||| named "grid" my_grid)
+myLayout =
+  avoidStruts
+  . mkToggle (single FULL)
+  . mkToggle (single TABBED)
+  . smartBorders
+  . spacingWithEdge 6
+  $ named "1/2" (Tall 1 (3/100) (1/2))
+  ||| named "2/3" (Tall 1 (3/100) (2/3))
+  ||| named "float" simpleFloat
 
-sep = xmobarColor mg "" " // "
+sep = xmobarColor fgDim "" " // "
 
 myXmobarPP :: PP
 myXmobarPP = def
     { ppSep             = sep
-    , ppCurrent         = (ppColor fg) . wrap "[" "]"
+    , ppVisible         = (ppColor fgDim) . wrap " " " "
+    , ppCurrent         = (ppColor fg) . wrap ("<box type=Bottom width=2 mb=2 color=" ++ hl ++ "> ") " </box>"
     , ppHidden          = (ppColor fgDim) . wrap " " " "
     , ppLayout          = (ppColor fg)
-    , ppOrder           = \[w,_,_] -> [w]
+    , ppOrder           = \[ws,layout,_] -> [ws,layout]
     }
   where
     ppColor :: String -> String -> String
     ppColor c = xmobarColor c ""
-

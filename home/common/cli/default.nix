@@ -15,6 +15,6 @@
     vim
     xclip
     tmux
-    btop
+    trash-cli
   ];
 }

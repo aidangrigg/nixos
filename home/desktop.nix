@@ -11,6 +11,7 @@
   # You can import other home-manager modules here
   imports = [
     ./common/emacs
+    # ./common/de/hyprland
     ./common/de/xmonad
     ./common/cli
     ./common/syncthing
@@ -34,41 +35,14 @@
     homeDirectory = "/home/aidan";
   };
 
-  home.pointerCursor = {
-    name = "Quintom_Ink";
-    package = pkgs.quintom-cursor-theme;
-    gtk.enable = true;
-    x11.enable = true;
-    size = 12;
-  };
-
-  specialisation.dark.configuration = {
-    dconf.settings = {
-      "org/gnome/desktop/interface" = {
-        color-scheme = "prefer-dark";
-      };
+  gtk = {
+    enable = true;
+    iconTheme = {
+      package = pkgs.adwaita-icon-theme;
+      name = "Adwaita";
     };
-
-    gtk = {
-      enable = true;
-      theme = {
-        name = "Adwaita-dark";
-      };
-    };
-  };
-
-  specialisation.light.configuration = {
-    dconf.settings = {
-      "org/gnome/desktop/interface" = {
-        color-scheme = "prefer-light";
-      };
-    };
-
-    gtk = {
-      enable = true;
-      theme = {
-        name = "Adwaita-light";
-      };
+    theme = {
+      name = "Adwaita";
     };
   };
 
@@ -96,8 +70,6 @@
     ghcid
 
     piper
-
-    remmina
 
     xorg.xhost
 

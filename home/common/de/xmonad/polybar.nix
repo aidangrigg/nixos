@@ -46,7 +46,6 @@ in {
 
         label-active = "%name%";
         label-active-padding = 1;
-        
         label-occupied = "%name%";
         label-occupied-padding = 1;
         label-occupied-foreground = colours.foreground-dim;

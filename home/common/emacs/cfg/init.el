@@ -58,7 +58,6 @@
   (org-enforce-todo-dependencies t)
   (org-startup-with-inline-images t)
   (org-id-track-globally t)
-  (org-log-repeat nil)
   (org-hide-leading-stars t)
   (org-latex-preview-ltxpng-directory "~/.cache/org-ltximg")
   (org-startup-with-latex-preview t)
@@ -72,7 +71,6 @@
   (org-icalendar-include-todo t)
   (org-icalendar-use-scheduled '(todo-start event-if-todo))
   (org-icalendar-use-deadline '(todo-due event-if-todo))
-  (org-habit-show-habits-only-for-today nil)
   (org-agenda-skip-timestamp-if-done t)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-done t)
@@ -118,7 +116,18 @@
   (add-hook 'org-agenda-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5))
+
+  ;; org habit
+  (setq org-extend-today-until 4)
   (add-to-list 'org-modules 'org-habit t)
+  (setq org-habit-show-habits-only-for-today t)
+  ;; (setq org-use-fast-todo-selection t)
+  (setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")))
+  ;; I prefer to log TODO creation also
+  ;; log into LOGBOOK drawer
+  (setq org-log-into-drawer t)
+  (setq org-log-repeat t)
   ;; org mode hooks
   (add-hook 'org-mode-hook 'variable-pitch-mode)
   (add-hook 'org-mode-hook 'org-indent-mode)
@@ -154,10 +163,14 @@
          ("C-c r i" . org-roam-node-insert)
          ("C-c r c" . org-roam-capture)
          ("C-c r d" . org-roam-dailies-goto-today)
+         ("C-c r s" . my/org-roam-search)
          :map org-mode-map
          ("M-/" . org-roam-node-insert)
          ("C-c t" . org-roam-tag-add))
   :config
+  (defun my/org-roam-search ()
+    (interactive)
+    (consult-ripgrep org-roam-directory))
   (org-roam-db-autosync-mode)
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template
@@ -275,16 +288,17 @@
     (modify-frame-parameters frame
                              '((vertical-scroll-bars . nil)
                                (horizontal-scroll-bars . nil))))
-  :bind (("C-c a"   . save-buffer)
-         ("M-/" . completion-at-point)
-         ("M-h" . windmove-left)
-         ("M-l" . windmove-right)
-         ("M-k" . windmove-up)
-         ("M-j" . windmove-down)
+  :bind (("C-c a" . save-buffer)
+         ("M-/"   . completion-at-point)
+         ("M-h"   . windmove-left)
+         ("M-l"   . windmove-right)
+         ("M-k"   . windmove-up)
+         ("M-j"   . windmove-down)
          :map my/window-map
-         ("h" . split-window-horizontally)
-         ("v" . split-window-vertically)
-         ("d" . delete-other-windows))
+         ("h"    . split-window-horizontally)
+         ("v"    . split-window-vertically)
+         ("d"    . delete-other-windows)
+         ("k"    . delete-window))
   :custom
 
   (enable-recursive-minibuffers t)
@@ -451,6 +465,8 @@
     ("K" surround-kill-outer "kill outer")
     ("q" nil "close")))
 
+(use-package multiple-cursors)
+
 (use-package meow
   :after surround
   :preface
@@ -464,14 +480,14 @@
     (recenter))
   :custom
   (meow-use-clipboard t)
-  (meow-expand-hint-remove-delay 0)
   (meow-use-cursor-position-hack nil)
   :config
   (meow-thing-register 'angle '(regexp "<" ">") '(regexp "<" ">"))
   (add-to-list 'meow-char-thing-table '(?a . angle))
+  (defun meow-end-of-line () (interactive) (meow-end-of-thing ?l))
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
+    (meow-motion-define-key
      '("j" . meow-next)
      '("k" . meow-prev)
      '("D" . my/page-down)
@@ -480,8 +496,8 @@
     (meow-leader-define-key
      ;; Use SPC (0-9) for digit arguments.
      '("b" . consult-buffer)
-     '("f" . consult-fd)
-     '("s" . consult-ripgrep)
+     '("f" . consult-fd) ;; TODO: fd dwim (if in projectile, find in projectile directory, else from current directory)
+     '("s" . consult-ripgrep) ;; TODO rg dwim ()
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet))
     (meow-normal-define-key
@@ -498,9 +514,12 @@
      '("2" . meow-expand-2)
      '("1" . meow-expand-1)
      '("-" . negative-argument)
+     '(":" . replace-regexp)
      '(";" . meow-reverse)
      '("si" . meow-inner-of-thing)
      '("so" . meow-bounds-of-thing)
+     '("se" . meow-end-of-thing)
+     '("$"  . meow-end-of-line)
      '("a" . meow-append)
      '("b" . meow-back-word)
      '("B" . meow-back-symbol)
@@ -525,8 +544,11 @@
      '("L" . meow-right-expand)
      '("m" . hydra-surround/body)
      '("n" . meow-search)
+     '("N" . meow-pop-search)
      '("." . meow-block)
-     '(">" . meow-to-block)
+     ;; '(">" . meow-to-block)
+     '(">" . mc/mark-next-like-this)
+     '("<" . mc/mark-previous-like-this)
      '("p" . meow-yank)
      '("q" . meow-quit)
      '("Q" . meow-goto-line)
@@ -538,11 +560,11 @@
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
-     '("X" . meow-goto-line)
+     '("X" . consult-goto-line)
      '("y" . meow-save)
      '("Y" . meow-sync-grab) ;; useless
-     '("z" . meow-visit)
-     '("/" . meow-join)
+     '("/" . meow-visit)
+     '("z" . meow-join)
      '("'" . repeat)
      '("<escape>" . ignore)))
   (meow-setup)
@@ -563,7 +585,6 @@
 (use-package rg)
 
 ;; Magit
-
 (use-package magit
   :bind (("C-c g" . 'magit)))
 
@@ -798,6 +819,10 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode)))
+
+(use-package gdscript-mode
+  :hook (gdscript-mode . eglot-ensure)
+  :custom (gdscript-eglot-version 4))
 
 ;; (use-package gdscript-mode
 ;;   :straight (gdscript-mode

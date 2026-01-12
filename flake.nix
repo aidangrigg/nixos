@@ -41,17 +41,19 @@
 
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
-    homeConfigurations = {
+    homeConfigurations = let
+      dotfilesDirectory = "/home/aidan/nix/dotfiles";
+    in {
       desktop = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = {inherit inputs outputs dotfilesDirectory;};
         # > Our main home-manager configuration file <
         modules = [./home/desktop.nix];
       };
 
       laptop = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = {inherit inputs outputs dotfilesDirectory;};
         # > Our main home-manager configuration file <
         modules = [./home/laptop.nix];
       };

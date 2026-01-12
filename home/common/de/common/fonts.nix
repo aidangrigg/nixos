@@ -9,6 +9,7 @@
     etBook
     terminus_font
     siji
+    scientifica
   ];
   fonts.fontconfig.enable = true;
 }
