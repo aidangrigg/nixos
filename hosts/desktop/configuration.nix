@@ -52,7 +52,6 @@
     nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
   };
 
-  # FIXME: Add the rest of your current configuration
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
@@ -94,6 +93,13 @@
 
   # keyboard
   hardware.keyboard.qmk.enable = true;
+
+  # VR
+
+  programs.alvr = {
+    enable = true;
+    openFirewall = true;
+  };
 
   # flatpak
   services.flatpak.enable = true;
@@ -145,7 +151,7 @@
       openssh.authorizedKeys.keys = [
         # TODO: Add your SSH public key(s) here, if you plan on using SSH to connect
       ];
-      # TODO: Be sure to add any other groups you need (such as networkmanager, audio, docker, etc)
+
       extraGroups = ["wheel" "networkmanager" "adbusers" "dialout" "docker"];
       packages = with pkgs; [
         xkbset
@@ -168,7 +174,6 @@
 
     windowManager.xmonad = {
       enable = true;
-    #   enableContribAndExtras = true;
     };
   };
 
@@ -239,10 +244,10 @@
     # Enable TPM emulation (for Windows 11)
     qemu = {
       package = pkgs.qemu_kvm;
-      ovmf = {
-        enable = true;
-        packages = [pkgs.OVMFFull.fd];
-      };
+      # ovmf = {
+      #   enable = true;
+      #   packages = [pkgs.OVMFFull.fd];
+      # };
       swtpm.enable = true;
     };
   };
@@ -312,20 +317,12 @@
     wget
     which
     blender-hip
+    borgbackup
 
     lact
   ]);
 
-  # TODO: Update this when changing to 25.11
-  systemd.services.lact = {
-    description = "AMDGPU Control Daemon";
-    after = ["multi-user.target"];
-    wantedBy = ["multi-user.target"];
-    serviceConfig = {
-      ExecStart = "${pkgs.lact}/bin/lact daemon";
-    };
-    enable = true;
-  };
+  services.lact.enable = true;
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.05";

@@ -165,7 +165,7 @@
          ("C-c r d" . org-roam-dailies-goto-today)
          ("C-c r s" . my/org-roam-search)
          :map org-mode-map
-         ("M-/" . org-roam-node-insert)
+         ;; ("M-/" . org-roam-node-insert)
          ("C-c t" . org-roam-tag-add))
   :config
   (defun my/org-roam-search ()
@@ -648,11 +648,12 @@
 
   :config
 
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+  ;; ;; Hide the mode line of the Embark live/completions buffers
+  ;; (add-to-list 'display-buffer-alist
+  ;;              '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+  ;;                nil
+  ;;                (window-parameters (mode-line-format . none))))
+  )
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
@@ -765,6 +766,8 @@
 (use-package corfu
   :custom
   (corfu-quit-no-match nil)
+  (corfu-auto t)
+  (corfu-auto-delay 0.2)
   (corfu-popupinfo-delay 0.3)
   (corfu-popupinfo-max-width 70)
   (corfu-popupinfo-max-height 20)

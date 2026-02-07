@@ -172,6 +172,7 @@ myConfig = def
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen
     , ("M-m"                    , activateScratchpad "music")
+    , ("M-c"                    , activateScratchpad "ghci")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     , ("M-a"                    , switchAudioInput)
     ] ++ map (workspaceBinding 0) [1..7] ++ map (workspaceBinding 1) [8..9]
@@ -187,6 +188,7 @@ rectCentered percentage = W.RationalRect offset offset percentage percentage
 
 myScratchpads =
   [ NSP.NS "music" "alacritty --title music -e ncmpcpp" (title =? "music") $ NSP.customFloating (rectCentered 0.4)
+  , NSP.NS "ghci" "alacritty --title ghci -e ghci" (title =? "ghci") $ NSP.customFloating (rectCentered 0.4)
   ]
 
 myManageHook :: ManageHook
