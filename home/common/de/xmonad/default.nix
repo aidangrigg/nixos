@@ -23,6 +23,8 @@
     pulseaudio
 
     xdotool
+
+    xsecurelock
   ];
 
   programs.patched-dmenu.enable = true;
@@ -78,13 +80,38 @@
     settings = {
       global = {
         origin = "top-right";
-        frame_color = "#e0e0e0";
-        frame_width = 1;
+        idle_threshold = "5s";
+
+        follow = "mouse";
+        geometry = "300x60-20+48";
+
+        indicate_hidden = "yes";
+        shrink = "no";
+        separator_height = 0;
+        padding = 32;
+        horizontal_padding = 32;
+        frame_width = 2;
+        line_height = 4;
+
+        markup = "full";
+        format = "%s\n%b";
+        alignment = "left";
+        show_age_threshold = 60;
+        word_wrap = "yes";
+        ignore_newline = "no";
+        stack_duplicates = false;
+        hide_duplicate_count = "yes";
+        show_indicators = "no";
+        icon_position = "off";
+        sticky_history = "yes";
+        history_length = 20;
+
+        frame_color = "#1a1a1a";
         background = "#1a1a1a";
         foreground = "#e0e0e0";
         font = "Terminus 8";
-        idle_threshold = "5s";
       };
+
     };
   };
 }

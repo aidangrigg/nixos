@@ -362,16 +362,24 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
-  (set-face-attribute 'default nil :family "Iosevka" :height 125)
+  ;; (set-face-attribute 'default nil :family "Iosevka" :height 125)
+  ;; (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
+  ;; (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 125)
+
+  ;; (custom-theme-set-faces
+  ;;  'user
+  ;;  '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
+  ;;  '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
+
+  (set-face-attribute 'default nil :family "Terminus" :height 120)
   (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
-  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 125)
+  (set-face-attribute 'fixed-pitch nil :family "Terminus" :height 120)
 
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
-   '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
+   '(fixed-pitch ((t ( :family "Terminus" :height 120 :weight normal)))))
 
-  ;; (setq default-frame-alist '((font . "Iosevka")))
 
   (define-prefix-command 'my/window-map)
   (bind-key "C-c w" my/window-map)

@@ -178,11 +178,7 @@
   };
 
   # screen lock
-  programs.i3lock = {
-    enable = true;
-    package = pkgs.i3lock-fancy-rapid;
-  };
-
+  programs.slock.enable = true;
   services.displayManager.defaultSession = "none+xmonad";
 
   # SDDM Display Manager
