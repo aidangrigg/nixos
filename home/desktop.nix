@@ -20,6 +20,7 @@
     ./common/music
     ./common/gaming
     ./common/productivity/qutebrowser.nix
+    ./common/productivity/gamedev.nix
   ];
 
   nixpkgs = {

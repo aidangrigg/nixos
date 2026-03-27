@@ -26,7 +26,7 @@
     zotero
     plantuml
     anki-bin
-    libresprite
     easyeffects
+    thunderbird
   ];
 }

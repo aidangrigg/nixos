@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   imports = [
     ./../common
-    # ./polybar.nix
+    ./../../suckless
   ];
 
   home.packages = with pkgs; [
@@ -22,9 +22,11 @@
     pamixer
     pulseaudio
 
-    dmenu
     xdotool
   ];
+
+  programs.patched-dmenu.enable = true;
+  programs.patched-st.enable = true;
 
   xsession.windowManager.xmonad = {
     enable = true;
@@ -52,21 +54,21 @@
       '';
     in ''
     Config { overrideRedirect  = False
-             , font            = "Iosevka 10"
+             , font            = "Terminus 8"
              , additionalFonts = ["Siji 8"]
              , textOffsets     = [1]
-             , bgColor         = "#fff5ea"
-             , fgColor         = "#1c0810"
-             , position        = BottomH 32
-             , textOffset      = 0
+             , bgColor         = "#1a1a1a"
+             , fgColor         = "#e0e0e0"
+             , position        = Static { xpos = 1210 , ypos = 10, width = 2300, height = 25 }
              , commands =
-               [ Run Date "%A, %d/%m/%y [%H:%M]" "date" 10
+               [ Run Date "%a %H:%M" "date" 10
                , Run UnsafeXMonadLog
                , Run Com "${music_script}" [] "mpd_script" 10
+               , Run Memory [ "-t", "<used>G", "--", "--scale", "1024"] 20
                ]
               , sepChar  = "%"
               , alignSep = "}{"
-              , template = "  %UnsafeXMonadLog% }%date%{%mpd_script%  "
+              , template = "  %UnsafeXMonadLog% }{ %mpd_script%   %memory%   %date%  "
     }
     '';
   };
@@ -76,11 +78,11 @@
     settings = {
       global = {
         origin = "top-right";
-        frame_color = "#FFFFFF";
+        frame_color = "#e0e0e0";
         frame_width = 1;
-        background = "#000000";
-        foreground = "#FFFFFF";
-        font = "Iosevka 10";
+        background = "#1a1a1a";
+        foreground = "#e0e0e0";
+        font = "Terminus 8";
         idle_threshold = "5s";
       };
     };

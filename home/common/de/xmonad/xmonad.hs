@@ -41,7 +41,7 @@ import qualified Data.Text.IO as TIO
 
 --  Default programs
 terminal, browser, launcher, emacs :: String
-terminal = "alacritty"
+terminal = "st"
 browser  = "firefox"
 launcher = "rofi -show drun"
 emacs = "emacsclient -c"
@@ -49,10 +49,10 @@ fileBrowser = "nemo"
 
 -- Colours
 fg, fgDim, hl, bg :: String
-fg = "#1c0810"
-fgDim = "#63728f"
+fg = "#e0e0e0"
+fgDim = "#4f4f4f"
 hl = "#71958d"
-bg = "#fffff2"
+bg = "#1a1a1a"
 
 data BrightnessState = BrightnessState { brightness :: Float }
 
@@ -187,8 +187,8 @@ rectCentered percentage = W.RationalRect offset offset percentage percentage
     offset = (1 - percentage) / 2
 
 myScratchpads =
-  [ NSP.NS "music" "alacritty --title music -e ncmpcpp" (title =? "music") $ NSP.customFloating (rectCentered 0.4)
-  , NSP.NS "ghci" "alacritty --title ghci -e ghci" (title =? "ghci") $ NSP.customFloating (rectCentered 0.4)
+  [ NSP.NS "music" (Main.terminal ++ " -T music-scratchpad -e ncmpcpp") (title =? "music-scratchpad") $ NSP.customFloating (rectCentered 0.4)
+  , NSP.NS "ghci" (Main.terminal ++ " -T ghci-scratchpad -e ghci") (title =? "ghci-scratchpad") $ NSP.customFloating (rectCentered 0.4)
   ]
 
 myManageHook :: ManageHook
@@ -213,37 +213,37 @@ myStartupHook = do
 data TABBED = TABBED deriving (Read, Show, Eq, Typeable)
 
 instance Transformer TABBED Window where
-    transform _ x k = k (tabbed shrinkText tabCfg) (const x)
+    transform _ x k = k (tabbedBottom shrinkText tabCfg) (const x)
       where
-        tabCfg = def { activeColor = bg
-                     , inactiveColor = fg
-                     , activeTextColor = fg
-                     , inactiveTextColor = bg
-                     , activeBorderColor = ""
-                     , inactiveBorderColor = ""
-                     , fontName = "xft:Iosevka:size=12"
-                     , decoHeight = 32}
+        tabCfg = def { activeColor = fg
+                     , inactiveColor = bg
+                     , activeTextColor = bg
+                     , inactiveTextColor = fg
+                     , activeBorderColor = fg
+                     , inactiveBorderColor = bg
+                     , fontName = "xft:Terminus:size=8"
+                     , decoHeight = 16}
 
 myLayout =
   avoidStruts
+  . smartBorders
+  . spacingWithEdge 5
   . mkToggle (single FULL)
   . mkToggle (single TABBED)
-  . smartBorders
-  . spacingWithEdge 6
   $ named "1/2" (Tall 1 (3/100) (1/2))
   ||| named "2/3" (Tall 1 (3/100) (2/3))
-  ||| named "float" simpleFloat
 
-sep = xmobarColor fgDim "" " // "
+sep = "   "
 
 myXmobarPP :: PP
-myXmobarPP = def
+myXmobarPP = filterOutWsPP [NSP.scratchpadWorkspaceTag] $ def
     { ppSep             = sep
-    , ppVisible         = (ppColor fgDim) . wrap " " " "
-    , ppCurrent         = (ppColor fg) . wrap ("<box type=Bottom width=2 mb=2 color=" ++ hl ++ "> ") " </box>"
-    , ppHidden          = (ppColor fgDim) . wrap " " " "
+    , ppWsSep           = "  "
+    , ppVisible         = (ppColor fgDim)
+    , ppCurrent         = (ppColor fg)
+    , ppHidden         = (ppColor fgDim)
     , ppLayout          = (ppColor fg)
-    , ppOrder           = \[ws,layout,_] -> [ws,layout]
+    , ppOrder           = \[ws,layout,_] -> [ws]
     }
   where
     ppColor :: String -> String -> String

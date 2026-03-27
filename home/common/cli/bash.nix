@@ -4,7 +4,13 @@
     enable = true;
     enableCompletion = true;
     initExtra = ''
-      export PS1='\w $(__git_ps1 "(%s) ")$ '
+      nix_prompt() {
+        if [[ -n "$IN_NIX_SHELL" ]]; then
+          printf "[%s] " "''${NIX_SHELL_NAME:-nix-develop}"
+        fi
+      }
+
+      export PS1='\w $(nix_prompt)$(__git_ps1 "(%s) ")$ '
     '';
 
     shellAliases = {

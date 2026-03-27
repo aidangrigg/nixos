@@ -37,6 +37,7 @@
       };
 
       plugins = [
+        "musicbrainz"
         "fromfilename"
         "fetchart"
       ];

@@ -29,7 +29,7 @@
   (defun my/project-orgfile ()
     (interactive)
     (let ((default-directory "~/sync/notes/org/projects/")
-	  (project-name (projectile-project-name)))
+	  (project-nixname (projectile-project-name)))
       (find-file-other-window (expand-file-name (concat project-name ".org")))))
   (defun my/project-agenda ()
     (interactive)
@@ -362,15 +362,16 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
-  (set-face-attribute 'default nil :family "Iosevka" :height 120)
+  (set-face-attribute 'default nil :family "Iosevka" :height 125)
   (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
-  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 120)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 125)
 
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
-   '(fixed-pitch ((t ( :family "Iosevka" :height 120 :weight normal)))))
-  ;; (setq default-frame-alist '((font . "Iosevka-14")))
+   '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
+
+  ;; (setq default-frame-alist '((font . "Iosevka")))
 
   (define-prefix-command 'my/window-map)
   (bind-key "C-c w" my/window-map)
@@ -390,30 +391,32 @@
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
   (add-to-list 'custom-theme-load-path
-               "~/.emacs.d/themes/"))
+               "~/.emacs.d/themes/")
+
+  (load-theme 'minimal))
 
 (use-package gruvbox-theme)
 
-(use-package ef-themes
-  :ensure t
-  :init
-  ;; This makes the Modus commands listed below consider only the Ef
-  ;; themes.  For an alternative that includes Modus and all
-  ;; derivative themes (like Ef), enable the
-  ;; `modus-themes-include-derivatives-mode' instead.
-  (ef-themes-take-over-modus-themes-mode 1)
-  :config
-  ;; All customisations here.
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-mixed-fonts t
-        line-spacing 0.1)
+;; (use-package ef-themes
+;;   :ensure t
+;;   :init
+;;   ;; This makes the Modus commands listed below consider only the Ef
+;;   ;; themes.  For an alternative that includes Modus and all
+;;   ;; derivative themes (like Ef), enable the
+;;   ;; `modus-themes-include-derivatives-mode' instead.
+;;   (ef-themes-take-over-modus-themes-mode 1)
+;;   :config
+;;   ;; All customisations here.
+;;   (setq modus-themes-italic-constructs nil
+;;         modus-themes-bold-constructs nil
+;;         modus-themes-mixed-fonts nil
+;;         line-spacing 0.1)
 
-  (setq modus-themes-headings
-        (quote ((1 . (1.5))
-                (2 . (1.3))
-                (3 . (1.1))
-                (4 . (1.1))))))
+;;   (setq modus-themes-headings
+;;         (quote ((1 . (1.5))
+;;                 (2 . (1.3))
+;;                 (3 . (1.1))
+;;                 (4 . (1.1))))))
 
 (use-package dbus
   :after gruvbox
@@ -485,6 +488,27 @@
   (meow-thing-register 'angle '(regexp "<" ">") '(regexp "<" ">"))
   (add-to-list 'meow-char-thing-table '(?a . angle))
   (defun meow-end-of-line () (interactive) (meow-end-of-thing ?l))
+  (defun my/buffer-dwim ()
+    (interactive)
+    (let ((project (projectile-project-root)))
+      (if project
+          (projectile-switch-to-buffer)
+        (consult-buffer))))
+
+  (defun my/find-dwim ()
+    (interactive)
+    (let ((project (projectile-project-root)))
+      (if project
+          (consult-fd project)
+        (consult-fd))))
+
+  (defun my/rg-dwim ()
+    (interactive)
+    (let ((project (projectile-project-root)))
+      (if project
+          (consult-ripgrep project)
+        (consult-ripgrep))))
+
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
     (meow-motion-define-key
@@ -494,10 +518,12 @@
      '("U" . my/page-up)
      '("<escape>" . ignore))
     (meow-leader-define-key
-     ;; Use SPC (0-9) for digit arguments.
-     '("b" . consult-buffer)
-     '("f" . consult-fd) ;; TODO: fd dwim (if in projectile, find in projectile directory, else from current directory)
-     '("s" . consult-ripgrep) ;; TODO rg dwim ()
+     '("SPC b" . consult-buffer)
+     '("SPC f" . consult-fd)
+     '("SPC s" . consult-ripgrep)
+     '("b" . my/buffer-dwim)
+     '("f" . my/find-dwim)
+     '("s" . my/rg-dwim)
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet))
     (meow-normal-define-key
@@ -563,7 +589,7 @@
      '("X" . consult-goto-line)
      '("y" . meow-save)
      '("Y" . meow-sync-grab) ;; useless
-     '("/" . meow-visit)
+     '("/" . consult-line)
      '("z" . meow-join)
      '("'" . repeat)
      '("<escape>" . ignore)))
@@ -577,10 +603,14 @@
   (projectile-mode)
   :bind (("C-c p" . 'projectile-command-map))
   :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
   (when (file-directory-p "~/projects")
     (setq projectile-project-search-path '("~/projects")))
-  (setq projectile-switch-project-action #'projectile-dired))
+  (setq projectile-switch-project-action #'projectile-dired)
+  (projectile-register-project-type 'nix '("flake.nix")
+                                    :project-file "flake.nix"
+				                    :compile "nix flake build"
+				                    :test "nix flake check"
+				                    :run "nix flake run"))
 
 (use-package rg)
 
@@ -752,12 +782,15 @@
 
 (use-package eldoc
   :custom
-  (eldoc-idle-delay 0))
+  (eldoc-idle-delay 0.2)
+  (eldoc-echo-area-use-multiline-p nil)
+  (eglot-report-progress nil))
 
 (use-package eldoc-box
   :after eglot
   :bind((:map eglot-mode-map
-              ("C-c t"   . eldoc-box-help-at-point))))
+              ("C-c t"   . eldoc-box-help-at-point)
+              ("M-i"     . eldoc-box-help-at-point))))
 
 (use-package yasnippet
   :custom
@@ -823,6 +856,9 @@
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode)))
 
+(use-package twind
+  :straight '(:type git :host github :repo "akirak/twind.el"))
+
 (use-package gdscript-mode
   :hook (gdscript-mode . eglot-ensure)
   :custom (gdscript-eglot-version 4))
@@ -839,4 +875,8 @@
   :custom
   (zig-format-on-save nil))
 
+(use-package tuareg
+  :mode (("\\.ocamlinit\\'" . tuareg-mode)))
+
 (use-package go-mode)
+(put 'upcase-region 'disabled nil)
