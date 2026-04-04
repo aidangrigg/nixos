@@ -99,16 +99,17 @@
         show_age_threshold = 60;
         word_wrap = "yes";
         ignore_newline = "no";
-        stack_duplicates = false;
+        stack_duplicates = true;
         hide_duplicate_count = "yes";
         show_indicators = "no";
-        icon_position = "off";
+        icon_position = "left";
         sticky_history = "yes";
         history_length = 20;
 
         frame_color = "#1a1a1a";
         background = "#1a1a1a";
         foreground = "#e0e0e0";
+        highlight = "#e0e0e0";
         font = "Terminus 8";
       };
 

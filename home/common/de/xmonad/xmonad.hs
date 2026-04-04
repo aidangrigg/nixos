@@ -33,6 +33,7 @@ import           XMonad.Util.Dmenu
 
 
 import           Data.List.NonEmpty (toList, NonEmpty)
+import           Data.List (intercalate)
 import           Data.Maybe
 import           Text.Printf (printf)
 
@@ -201,10 +202,16 @@ myManageHook = composeAll
     ] <+> NSP.namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
-  spawnOnce "xrandr --output DP-2 --primary --mode 2560x1440 -r 165 && xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
-  spawnOnce "feh --bg-center /home/aidan/images/background/the-savage-state-1440p.png /home/aidan/images/background/savage-state-smol.jpg" -- background
-  spawnOnce "xsetroot -cursor_name Quintom_Ink" -- set cursor theme
-  spawnOnce "xset r rate 250 50"
+  spawnOnce $
+    intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165"
+                       ,"xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
+                       ,"feh --bg-center /home/aidan/images/background/the-savage-state-1440p.png /home/aidan/images/background/savage-state-smol.jpg"
+                       ,"xset s off"
+                       ,"xset -dpms"
+                       ,"xset r rate 250 50"]
+
+  spawnOnce "xsetroot -cursor_name Quintom_Ink"
+  -- spawnOnce "xset r rate 250 50"
   -- Fixes `xdg-open`. See here:
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
