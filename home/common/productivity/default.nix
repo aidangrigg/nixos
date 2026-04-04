@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, pkgs-unstable, ... }: {
   imports = [ ./latex.nix ];
 
   programs.zathura = {
@@ -17,7 +17,7 @@
     };
   };
 
-  home.packages = with pkgs; [
+  home.packages = (with pkgs; [
     xournalpp
     hunspell
     hunspellDicts.en_AU
@@ -28,5 +28,7 @@
     anki-bin
     easyeffects
     thunderbird
-  ];
+  ]) ++ (with pkgs-unstable; [
+    ollama-rocm
+  ]);
 }

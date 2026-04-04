@@ -60,7 +60,49 @@
   # internet
   networking = {
     hostName = "nixos-desktop";
-    networkmanager.enable = true;
+    networkmanager = {
+      enable = true;
+      dns = "none";
+    };
+    nameservers = [ "127.0.0.1" "::1" ];
+  };
+
+  # dns
+
+  services.dnscrypt-proxy = {
+    enable = true;
+    # Settings reference:
+    # https://github.com/DNSCrypt/dnscrypt-proxy/blob/master/dnscrypt-proxy/example-dnscrypt-proxy.toml
+    settings = {
+      ipv4_servers = true;
+      ipv6_servers = true;
+      require_dnssec = true;
+      # Maximum log files size in MB
+      log_files_max_size = 10;
+      # Helpful to check if dnscrypt-proxy is actually used
+      query_log.file = "/var/log/dnscrypt-proxy/query.log";
+      sources.public-resolvers = {
+        urls = [
+          "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolver/smaster/v3/public-resolvers.md"
+          "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
+        ];
+        cache_file = "/var/cache/dnscrypt-proxy/public-resolvers.md";
+        minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+      };
+      # List chosen from [0]. I only include servers/providers that:
+      # - provide DNSSEC and DoH
+      # - do no filtering and no logging (at least claim so)
+      # - have servers in Europe
+      #
+      # dnscrypt-proxy will sort this by latency but also rotate the DNS
+      # servers to improve privacy.
+      # [0] https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md
+      server_names = [
+        "mullvad-base-doh"
+        # "quad9-doh-ip4-port443-nofilter-pri"
+        # "quad9-doh-ip6-port443-nofilter-pri"
+      ];
+    };
   };
 
   # enable logitech mouse configuration

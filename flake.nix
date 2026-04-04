@@ -3,51 +3,48 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
-
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    ...
-  } @ inputs: let
-    inherit (self) outputs;
-  in {
-    overlays = import ./overlays {inherit inputs;};
-
-    nixosConfigurations = {
-      desktop = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
-        modules = [
-          ./hosts/desktop/configuration.nix
-        ];
-      };
-
-      laptop = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
-        modules = [
-          ./hosts/laptop/configuration.nix
-        ];
-      };
-    };
-
-    homeConfigurations = let
-      dotfilesDirectory = "/home/aidan/nix/dotfiles";
+  outputs = {self, nixpkgs, nixpkgs-unstable, home-manager, ...} @ inputs:
+    let
+      inherit (self) outputs;
+      pkgs-unstable = nixpkgs-unstable.legacyPackages.x86_64-linux;
     in {
-      desktop = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs dotfilesDirectory;};
-        modules = [./home/desktop.nix];
+      overlays = import ./overlays {inherit inputs;};
+
+      nixosConfigurations = {
+        desktop = nixpkgs.lib.nixosSystem {
+          specialArgs = {inherit inputs outputs;};
+          modules = [
+            ./hosts/desktop/configuration.nix
+          ];
+        };
+
+        laptop = nixpkgs.lib.nixosSystem {
+          specialArgs = {inherit inputs outputs;};
+          modules = [
+            ./hosts/laptop/configuration.nix
+          ];
+        };
       };
 
-      laptop = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs dotfilesDirectory;};
-        modules = [./home/laptop.nix];
+      homeConfigurations = let
+        dotfilesDirectory = "/home/aidan/nix/dotfiles";
+      in {
+        desktop = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
+        modules = [./home/desktop.nix];
+        };
+
+        laptop = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
+          modules = [./home/laptop.nix];
+        };
       };
     };
-  };
 }
