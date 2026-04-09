@@ -57,7 +57,7 @@
     in ''
     Config { overrideRedirect  = False
              , font            = "Terminus 8"
-             , additionalFonts = ["Siji 8"]
+             , additionalFonts = ["Siji 8", "DotGothic16"]
              , textOffsets     = [1]
              , bgColor         = "#1a1a1a"
              , fgColor         = "#e0e0e0"

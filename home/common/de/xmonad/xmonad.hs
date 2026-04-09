@@ -92,16 +92,6 @@ myPromptConfig = def
   , maxComplColumns = Just 1
   }
 
-powerPrompt :: X ()
-powerPrompt =
-  mkXPrompt Power myPromptConfig
-  (mkComplFunFromList' def ["off", "reboot", "zzz"]) handle
-  where
-    handle "off" = spawn "systemctl poweroff"
-    handle "reboot" = spawn "systemctl reboot"
-    handle "zzz" = spawn "i3lock 5 3 && systemctl suspend"
-    handle _ = spawn "notify-send -t 1000 \"Unknown value\""
-
 switchAudioInput :: X ()
 switchAudioInput =
   mkXPrompt Power myPromptConfig
@@ -168,7 +158,7 @@ myConfig = def
     , ("M-f"                    , sendMessage $ Toggle TABBED)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
     , ("<XF86AudioLowerVolume>" , adjustVolume (-5))
-    , ("M-S-p"                  , powerPrompt)
+    , ("M-S-p"                  , spawn "dmenu-powermenu")
     , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
     , ("M-S-l"                  , spawn "i3lock 5 3") -- lock screen

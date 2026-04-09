@@ -40,6 +40,7 @@
         "musicbrainz"
         "fromfilename"
         "fetchart"
+        "chroma"
       ];
     };
   };
