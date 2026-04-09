@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+mpv --really-quiet ~/nix/assets/sfx/"$1".ogg

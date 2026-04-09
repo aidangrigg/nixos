@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+path="$(mktemp -d)"
+
+yt-dlp --add-metadata -f bestaudio -x --audio-format opus -P "$path" -o "%(track_number,playlist_index)s %(title)s.%(ext)s" "$1"
+beet import "$path"
+

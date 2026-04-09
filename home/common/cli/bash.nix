@@ -10,6 +10,19 @@
         fi
       }
 
+      # https://evanhahn.com/scripts-i-wrote-that-i-use-all-the-time/
+      boop() {
+        local last="$?"
+
+        if [[ "$last" -eq 0 ]]; then
+           sfx good
+        else
+           sfx bad
+        fi
+
+        $(exit "$last")
+      }
+
       export PS1='\w $(nix_prompt)$(__git_ps1 "(%s) ")$ '
     '';
 
