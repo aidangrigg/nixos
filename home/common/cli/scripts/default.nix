@@ -12,6 +12,7 @@
         text = lib.readFile ./src/sfx;
       });
     in [
+      dmenu
       sfx
       (pkgs.writeShellApplication {
         name = "dmenu-powermenu";

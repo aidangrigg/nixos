@@ -44,7 +44,7 @@ import qualified Data.Text.IO as TIO
 terminal, browser, launcher, emacs :: String
 terminal = "st"
 browser  = "firefox"
-launcher = "rofi -show drun"
+launcher = "dmenu_path | dmenu.sh | ${SHELL:-\"/bin/sh\"}"
 emacs = "emacsclient -c"
 fileBrowser = "nemo"
 

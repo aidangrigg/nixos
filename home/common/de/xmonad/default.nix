@@ -12,9 +12,6 @@
     # background
     feh
 
-    # search
-    rofi
-
     # send notifications from the shell
     libnotify
 
@@ -23,7 +20,6 @@
     pulseaudio
 
     xdotool
-
     xsecurelock
   ];
 
