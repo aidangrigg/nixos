@@ -166,6 +166,7 @@ myConfig = def
     , ("M-c"                    , activateScratchpad "ghci")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     , ("M-a"                    , switchAudioInput)
+    , ("M-<Esc>"                , spawn "find-cursor --color white")
     ] ++ map (workspaceBinding 0) [1..7] ++ map (workspaceBinding 1) [8..9]
     where workspaceBinding screenId ws =
             let id = show ws

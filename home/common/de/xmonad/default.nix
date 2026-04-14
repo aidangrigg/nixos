@@ -21,6 +21,7 @@
 
     xdotool
     xsecurelock
+    find-cursor
   ];
 
   programs.patched-dmenu.enable = true;
