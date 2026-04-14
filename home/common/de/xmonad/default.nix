@@ -1,4 +1,14 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+let xmobar-fork = pkgs.xmobar.overrideAttrs (old: {
+      version = "git";
+      src = pkgs.fetchFromCodeberg {
+        owner = "aidangrigg";
+        repo = "xmobar";
+        rev = "59f9743fdc074f6de31367baf5fd76e33c6a8378";
+        hash = "sha256-+CebXT+xlCjsqeBfN9JjiZRXGtOzXpQW+YZ6shBj7rc=";
+      };
+    });
+in {
   imports = [
     ./../common
     ./../../suckless
@@ -43,6 +53,7 @@
 
   programs.xmobar = {
     enable = true;
+    package = xmobar-fork;
     extraConfig = let
       music_script = pkgs.writeShellScript "xmobar-mpd" ''
         STATUS=$(${pkgs.mpc}/bin/mpc status | grep -oE '\[(playing|paused)\]')
@@ -58,7 +69,7 @@
              , textOffsets     = [1]
              , bgColor         = "#1a1a1a"
              , fgColor         = "#e0e0e0"
-             , position        = Static { xpos = 1210 , ypos = 10, width = 2300, height = 25 }
+             , position        = TopSizeOffset C 90 25 10
              , commands =
                [ Run Date "%a %H:%M" "date" 10
                , Run UnsafeXMonadLog
