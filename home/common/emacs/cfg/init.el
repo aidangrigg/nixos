@@ -234,6 +234,13 @@
 ;;   (add-hook 'org-mode-hook #'org-modern-mode)
 ;;   (set-face-attribute 'org-modern-symbol nil :family "Iosevka"))
 
+(use-package elfeed
+  :config
+  (add-hook 'elfeed-show-mode-hook #'olivetti-mode)
+  (setq elfeed-feeds
+        '("https://neilzone.co.uk/index.xml"
+          "https://evanhahn.com/blog/index.xml")))
+
 (use-package olivetti
   :custom
   (olivetti-body-width 120)
