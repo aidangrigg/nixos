@@ -194,7 +194,7 @@ myManageHook = composeAll
 
 myStartupHook = do
   spawnOnce $
-    intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165"
+    intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165 --primary"
                        ,"xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
                        ,"feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png /home/aidan/nix/assets/backgrounds/savage-state-vertical.jpg"
                        ,"xset s off"
