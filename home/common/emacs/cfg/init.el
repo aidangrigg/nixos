@@ -29,13 +29,13 @@
   (defun my/project-orgfile ()
     (interactive)
     (let ((default-directory "~/sync/notes/org/projects/")
-	  (project-nixname (projectile-project-name)))
+	      (project-nixname (projectile-project-name)))
       (find-file-other-window (expand-file-name (concat project-name ".org")))))
   (defun my/project-agenda ()
     (interactive)
     (let ((org-agenda-files
-	   (list (concat "~/sync/notes/org/projects/"
-		         (projectile-project-name)
+	       (list (concat "~/sync/notes/org/projects/"
+		                 (projectile-project-name)
                          ".org"))))
       (call-interactively #'org-agenda)))
   (defun my/daily-agenda ()
@@ -45,11 +45,11 @@
     (interactive)
     (org-agenda nil "o"))
   :bind (("C-c o a" . org-agenda)
-	 ("C-c o c" . org-capture)
-	 ("C-c o f" . my/project-orgfile)
-	 ("C-c o p" . my/project-agenda)
-	 ("C-c o d" . my/daily-agenda)
-	 ("C-c o o" . my/overview-agenda))
+	     ("C-c o c" . org-capture)
+	     ("C-c o f" . my/project-orgfile)
+	     ("C-c o p" . my/project-agenda)
+	     ("C-c o d" . my/daily-agenda)
+	     ("C-c o o" . my/overview-agenda))
   :custom
   (org-agenda-window-setup 'only-window); agenda takes whole window
   (org-agenda-restore-windows-after-quit t); restore window configuration on exit
@@ -64,7 +64,10 @@
   (org-capture-templates
    '(("t" "Task" entry
       (file+olp "~/sync/notes/org/tasks.org" "Inbox")
-      "* TODO %?\n" :empty-lines 1)))
+      "* TODO %?\n" :empty-lines 1)
+     ("s" "Shopping List" entry
+      (file "~/sync/notes/org/shopping_list.org")
+      "* TODO %?\n")))
   (org-agenda-files
    '("~/sync/notes/org/tasks.org"
      "~/sync/notes/org/mobile.org"))
@@ -123,7 +126,7 @@
   (setq org-habit-show-habits-only-for-today t)
   ;; (setq org-use-fast-todo-selection t)
   (setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")))
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")))
   ;; I prefer to log TODO creation also
   ;; log into LOGBOOK drawer
   (setq org-log-into-drawer t)
@@ -135,9 +138,9 @@
   ;; Babel stuff
   (org-babel-do-load-languages
    'org-babel-load-languages '((C . t)
-			       (haskell . t)
-			       (shell . t)
-			       (plantuml . t))))
+			                   (haskell . t)
+			                   (shell . t)
+			                   (plantuml . t))))
 
 (use-package org-roam
   :custom
