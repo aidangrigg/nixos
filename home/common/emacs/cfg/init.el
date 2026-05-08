@@ -124,6 +124,10 @@
   (setq org-extend-today-until 4)
   (add-to-list 'org-modules 'org-habit t)
   (setq org-habit-show-habits-only-for-today t)
+
+  ;; Templating
+  (require 'org-tempo)
+
   ;; (setq org-use-fast-todo-selection t)
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")))
@@ -144,6 +148,7 @@
 
 (use-package org-roam
   :custom
+  (org-roam-completion-everywhere t)
   (org-roam-directory (file-truename "~/sync/notes/org/zettel"))
   (org-roam-capture-templates
 	'(("m" "main" plain "%?"
@@ -159,7 +164,15 @@
             "main/${slug}.org"
             "#+title: ${title}\n#+filetags: :empty:\n")
            :immediate-finish t
-           :unarrowed t)))
+           :unarrowed t)
+          ("yt" "youtube video" plain "%?"
+           :target
+           (file+head
+            "reference/${slug}.org"
+            "#+title: ${title}\n#+filetags: :notes:youtube:\n")
+           :immediate-finish t
+           :unarrowed t)
+          ))
   :bind (("C-c r l" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
          ("C-c r g" . org-roam-graph)
@@ -251,16 +264,6 @@
   (add-hook 'org-agenda-mode-hook #'olivetti-mode)
   (add-hook 'org-mode-hook #'olivetti-mode))
 
-(use-package org-alert
-  :ensure t
-  :after org
-  :custom
-  (alert-default-style 'libnotify)
-  (org-alert-interval 300)
-  (org-alert-notify-cutoff 15)
-  (org-alert-notify-after-event-cutoff 10)
-  :config
-  (org-alert-enable))
 
 (use-package org-appear
   :custom
@@ -372,23 +375,23 @@
    '(("en_AU" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_AU") nil utf-8)))
 
   :config
-  ;; (set-face-attribute 'default nil :family "Iosevka" :height 125)
-  ;; (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
-  ;; (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 125)
-
-  ;; (custom-theme-set-faces
-  ;;  'user
-  ;;  '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
-  ;;  '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
-
-  (set-face-attribute 'default nil :family "Terminus" :height 120)
+  (set-face-attribute 'default nil :family "Iosevka" :height 125)
   (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
-  (set-face-attribute 'fixed-pitch nil :family "Terminus" :height 120)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 125)
 
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
-   '(fixed-pitch ((t ( :family "Terminus" :height 120 :weight normal)))))
+   '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
+
+  ;; (set-face-attribute 'default nil :family "Terminus" :height 120)
+  ;; (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
+  ;; (set-face-attribute 'fixed-pitch nil :family "Terminus" :height 120)
+
+  ;; (custom-theme-set-faces
+  ;;  'user
+  ;;  '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
+  ;;  '(fixed-pitch ((t ( :family "Terminus" :height 120 :weight normal)))))
 
 
   (define-prefix-command 'my/window-map)
@@ -411,30 +414,31 @@
   (add-to-list 'custom-theme-load-path
                "~/.emacs.d/themes/")
 
-  (load-theme 'minimal))
+  ;; (load-theme 'minimal)
+  )
 
 (use-package gruvbox-theme)
 
-;; (use-package ef-themes
-;;   :ensure t
-;;   :init
-;;   ;; This makes the Modus commands listed below consider only the Ef
-;;   ;; themes.  For an alternative that includes Modus and all
-;;   ;; derivative themes (like Ef), enable the
-;;   ;; `modus-themes-include-derivatives-mode' instead.
-;;   (ef-themes-take-over-modus-themes-mode 1)
-;;   :config
-;;   ;; All customisations here.
-;;   (setq modus-themes-italic-constructs nil
-;;         modus-themes-bold-constructs nil
-;;         modus-themes-mixed-fonts nil
-;;         line-spacing 0.1)
+(use-package ef-themes
+  :ensure t
+  :init
+  ;; This makes the Modus commands listed below consider only the Ef
+  ;; themes.  For an alternative that includes Modus and all
+  ;; derivative themes (like Ef), enable the
+  ;; `modus-themes-include-derivatives-mode' instead.
+  ;; (ef-themes-take-over-modus-themes-mode 1)
+  :config
+  ;; All customisations here.
+  (setq modus-themes-italic-constructs nil
+        modus-themes-bold-constructs nil
+        modus-themes-mixed-fonts nil
+        line-spacing 0.1)
 
-;;   (setq modus-themes-headings
-;;         (quote ((1 . (1.5))
-;;                 (2 . (1.3))
-;;                 (3 . (1.1))
-;;                 (4 . (1.1))))))
+  (setq modus-themes-headings
+        (quote ((1 . (1.5))
+                (2 . (1.3))
+                (3 . (1.1))
+                (4 . (1.1))))))
 
 (use-package dbus
   :after gruvbox
@@ -510,7 +514,7 @@
     (interactive)
     (let ((project (projectile-project-root)))
       (if project
-          (projectile-switch-to-buffer)
+          (consult-project-buffer)
         (consult-buffer))))
 
   (defun my/find-dwim ()
@@ -608,6 +612,7 @@
      '("y" . meow-save)
      '("Y" . meow-sync-grab) ;; useless
      '("/" . consult-line)
+     '("?" . consult-outline)
      '("z" . meow-join)
      '("'" . repeat)
      '("<escape>" . ignore)))
@@ -637,39 +642,21 @@
   :bind (("C-c g" . 'magit)))
 
 (use-package vertico
-  ;; :custom
-  ;; (vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (vertico-count 20) ;; Show more candidates
-  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  ;; (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
   :init
   (vertico-mode))
 
 (use-package marginalia
-  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-  ;; available in the *Completions* buffer, add it to the
-  ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
-
-  ;; The :init section is always executed.
   :init
-
-  ;; Marginalia must be activated in the :init section of use-package such that
-  ;; the mode gets enabled right away. Note that this forces loading the
-  ;; package.
   (marginalia-mode))
 
-;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
   :init
   (savehist-mode))
 
 (use-package orderless
   :custom
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
-  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
@@ -681,35 +668,13 @@
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
+  (setq prefix-help-command #'embark-prefix-help-command))
 
-  ;; Optionally replace the key help with a completing-read interface
-  (setq prefix-help-command #'embark-prefix-help-command)
-
-  ;; Show the Embark target at point via Eldoc. You may adjust the
-  ;; Eldoc strategy, if you want to see the documentation from
-  ;; multiple providers. Beware that using this can be a little
-  ;; jarring since the message shown in the minibuffer can be more
-  ;; than one line, causing the modeline to move up and down:
-
-  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-
-  :config
-
-  ;; ;; Hide the mode line of the Embark live/completions buffers
-  ;; (add-to-list 'display-buffer-alist
-  ;;              '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-  ;;                nil
-  ;;                (window-parameters (mode-line-format . none))))
-  )
-
-;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult
-  ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ([remap Info-search] . consult-info)
@@ -746,29 +711,15 @@
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
-
-  ;; The :init configuration is always executed (Not lazy)
   :init
-
-  ;; Tweak the register preview for `consult-register-load',
-  ;; `consult-register-store' and the built-in commands.  This improves the
-  ;; register formatting, adds thin separator lines, register sorting and hides
-  ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
   (setq register-preview-delay 0.5)
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
-
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
   :config
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; "C-+"
   (consult-customize consult-buffer :preview-key "M-/"))
 
@@ -778,7 +729,6 @@
   (setq which-key-idle-delay 0.3))
 
 ;; LSP
-
 (use-package eglot
   :straight (:type built-in)
   :custom
@@ -792,11 +742,12 @@
                `(python-mode . ,(eglot-alternatives
                                  '(("pylsp")
                                    ("pyright")))))
-  :bind((:map eglot-mode-map
-              ("C-c l a"  . eglot-code-actions)
-              ("C-c l e"  . flymake-show-diagnostics-buffer)
-              ("M-q"      . eglot-format-buffer)
-              ("C-c l r"  . eglot-rename))))
+  :bind(:map eglot-mode-map
+             ("C-c C-l a"  . eglot-code-actions)
+             ("C-c C-l e"  . flymake-show-diagnostics-buffer)
+             ("C-c C-l d"  . consult-flymake)
+             ("C-c C-l r"  . eglot-rename)
+             ("M-q"      . eglot-format-buffer)))
 
 (use-package eldoc
   :custom
@@ -897,4 +848,5 @@
   :mode (("\\.ocamlinit\\'" . tuareg-mode)))
 
 (use-package go-mode)
+
 (put 'upcase-region 'disabled nil)
