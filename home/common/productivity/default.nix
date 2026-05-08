@@ -28,7 +28,5 @@
     anki-bin
     easyeffects
     thunderbird
-  ]) ++ (with pkgs-unstable; [
-    ollama-rocm
   ]);
 }
