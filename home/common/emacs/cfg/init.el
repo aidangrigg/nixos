@@ -212,6 +212,30 @@
   (calfw-org-overwrite-default-keybinding t)
   :bind (("C-c o u" . calfw-org-open-calendar)))
 
+(use-package alert
+  :config
+  (setq alert-default-style 'notifications))
+
+(use-package org-ql)
+(use-package ts)
+
+(use-package org-timed-alerts
+  :straight '(:type git :host github :repo "legalnonsense/org-timed-alerts")
+  :after (org)
+  :custom
+  (org-timed-alerts-alert-function #'alert)
+  (org-timed-alerts-tag-exclusions nil)
+  (org-timed-alerts-default-alert-props nil)
+  (org-timed-alerts-warning-times '(-10 -5))
+  (org-timed-alerts-agenda-hook-p t)
+  (org-timed-alerts-todo-exclusions `("DONE"))
+  (org-timed-alert-final-alert-string "IT IS %alert-time\n\n%todo %headline")
+  (org-timed-alert-warning-string (concat "%todo %headline\n at %alert-time\n "
+                                          "it is now %current-time\n "
+                                          "*THIS IS YOUR %warning-time MINUTE WARNING*"))
+  :config
+  (add-hook 'org-mode-hook #'org-timed-alerts-mode))
+
 (use-package citar
   :after typst-ts-mode
   :custom
@@ -419,63 +443,63 @@
 
 (use-package gruvbox-theme)
 
-(use-package ef-themes
-  :ensure t
-  :init
-  ;; This makes the Modus commands listed below consider only the Ef
-  ;; themes.  For an alternative that includes Modus and all
-  ;; derivative themes (like Ef), enable the
-  ;; `modus-themes-include-derivatives-mode' instead.
-  ;; (ef-themes-take-over-modus-themes-mode 1)
-  :config
-  ;; All customisations here.
-  (setq modus-themes-italic-constructs nil
-        modus-themes-bold-constructs nil
-        modus-themes-mixed-fonts nil
-        line-spacing 0.1)
+;; (use-package ef-themes
+;;   :ensure t
+;;   :init
+;;   ;; This makes the Modus commands listed below consider only the Ef
+;;   ;; themes.  For an alternative that includes Modus and all
+;;   ;; derivative themes (like Ef), enable the
+;;   ;; `modus-themes-include-derivatives-mode' instead.
+;;   ;; (ef-themes-take-over-modus-themes-mode 1)
+;;   :config
+;;   ;; All customisations here.
+;;   (setq modus-themes-italic-constructs nil
+;;         modus-themes-bold-constructs nil
+;;         modus-themes-mixed-fonts nil
+;;         line-spacing 0.1)
 
-  (setq modus-themes-headings
-        (quote ((1 . (1.5))
-                (2 . (1.3))
-                (3 . (1.1))
-                (4 . (1.1))))))
+;;   (setq modus-themes-headings
+;;         (quote ((1 . (1.5))
+;;                 (2 . (1.3))
+;;                 (3 . (1.1))
+;;                 (4 . (1.1))))))
 
-(use-package dbus
-  :after gruvbox
-  :straight (:type built-in)
-  :config
-  (defun my/set-theme-from-dbus-value (value)
-    "Set the appropiate theme according to the color-scheme setting value."
-    (message "value is %s" value)
-    (if (equal value '1)
-        (progn (message "Switch to dark theme")
-               (modus-themes-load-theme 'ef-tritanopia-dark))
-               ;; (consult-theme 'gruvbox-dark-hard))
-      (progn (message "Switch to light theme")
-             (modus-themes-load-theme 'ef-day))))
-             ;; (consult-theme 'gruvbox-light-hard))))
-  (defun my/color-scheme-changed (path var value)
-    "DBus handler to detect when the color-scheme has changed."
-    (when (and (string-equal path "org.freedesktop.appearance")
-               (string-equal var "color-scheme"))
-      (my/set-theme-from-dbus-value (car value))
-      ))
-  ;; Register for future changes
-  (dbus-register-signal
-   :session "org.freedesktop.portal.Desktop"
-   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
-   "SettingChanged"
-   #'my/color-scheme-changed)
+;; (use-package dbus
+;;   :after gruvbox
+;;   :straight (:type built-in)
+;;   :config
+;;   (defun my/set-theme-from-dbus-value (value)
+;;     "Set the appropiate theme according to the color-scheme setting value."
+;;     (message "value is %s" value)
+;;     (if (equal value '1)
+;;         (progn (message "Switch to dark theme")
+;;                (modus-themes-load-theme 'ef-tritanopia-dark))
+;;                ;; (consult-theme 'gruvbox-dark-hard))
+;;       (progn (message "Switch to light theme")
+;;              (modus-themes-load-theme 'ef-day))))
+;;              ;; (consult-theme 'gruvbox-light-hard))))
+;;   (defun my/color-scheme-changed (path var value)
+;;     "DBus handler to detect when the color-scheme has changed."
+;;     (when (and (string-equal path "org.freedesktop.appearance")
+;;                (string-equal var "color-scheme"))
+;;       (my/set-theme-from-dbus-value (car value))
+;;       ))
+;;   ;; Register for future changes
+;;   (dbus-register-signal
+;;    :session "org.freedesktop.portal.Desktop"
+;;    "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+;;    "SettingChanged"
+;;    #'my/color-scheme-changed)
 
-  ;; Request the current color-scheme
-  (dbus-call-method-asynchronously
-   :session "org.freedesktop.portal.Desktop"
-   "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
-   "Read"
-   (lambda (value) (my/set-theme-from-dbus-value (caar value)))
-   "org.freedesktop.appearance"
-   "color-scheme"
-   ))
+;;   ;; Request the current color-scheme
+;;   (dbus-call-method-asynchronously
+;;    :session "org.freedesktop.portal.Desktop"
+;;    "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings"
+;;    "Read"
+;;    (lambda (value) (my/set-theme-from-dbus-value (caar value)))
+;;    "org.freedesktop.appearance"
+;;    "color-scheme"
+;;    ))
 
 (use-package hydra)
 
