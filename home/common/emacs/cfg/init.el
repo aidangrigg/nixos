@@ -439,7 +439,7 @@
                "~/.emacs.d/themes/")
 
   ;; (load-theme 'minimal)
-  )
+  (load-theme 'modus-operandi))
 
 (use-package gruvbox-theme)
 
