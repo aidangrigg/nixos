@@ -71,7 +71,7 @@ in {
              , fgColor         = "#e0e0e0"
              , position        = TopSizeOffset C 90 25 10
              , commands =
-               [ Run Date "%a %H:%M" "date" 10
+               [ Run Date "%a %H:%M, %d %b" "date" 10
                , Run UnsafeXMonadLog
                , Run Com "${music_script}" [] "mpd_script" 10
                , Run Memory [ "-t", "<used>G", "--", "--scale", "1024"] 20

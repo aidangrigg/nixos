@@ -78,45 +78,42 @@
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-done t)
   (org-agenda-skip-timestamp-if-deadline-is-shown t)
-  (org-agenda-time-grid
-   '((daily today require-timed)
-     ()
-     "     " "----------------"))
-  (org-agenda-current-time-string "   now")
-  (org-agenda-compact-blocks nil)
-  (org-agenda-hide-tags-regexp ".")
   :config
   ;; agenda stuff
-  (setq org-agenda-block-separator nil)
+  ;; TODO keywords.
+
+  (setq org-use-fast-todo-selection 'auto)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "INTR(i)" "|" "DONE(d!)")))
+
+  ;; Show the daily agenda by default.
+  (setq org-agenda-span 'day)
+
+  ;; Hide tasks that are scheduled in the future.
+  (setq org-agenda-todo-ignore-scheduled 'future)
+
+  ;; Use "second" instead of "day" for time comparison.
+  ;; It hides tasks with a scheduled time like "<2020-11-15 Sun 11:30>"
+  (setq org-agenda-todo-ignore-time-comparison-use-seconds t)
+
+  ;; Hide the deadline prewarning prior to scheduled date.
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
+
+  ;; Customized view for the daily workflow. (Command: "C-c a n")
   (setq org-agenda-custom-commands
-        '(("o" "Overview"
-           ((agenda "" ((org-agenda-span 'day)
-                        (org-agenda-prefix-format "  %?-12t% s")
-                        (org-deadline-warning-days 1)))
-            (agenda nil ((org-deadline-warning-days 0)
-                         (org-agenda-entry-types '(:timestamp :scheduled :deadline))
-                         (org-agenda-format-date "%a [%x]")
-                         (org-agenda-span 'week)
-                         (org-agenda-prefix-format "  %?t")
-                         (org-agenda-overriding-header "\nUpcoming Events\n")))
-            (agenda nil ((org-agenda-entry-types '(:deadline))
-                         (org-agenda-format-date "")
-                         (org-agenda-span 0)
-                         (org-deadline-warning-days 60)
-                         (org-agenda-prefix-format " %6s [%8T] ")
-                         (org-agenda-deadline-leaders '("[DUE]" "(%dd.)" "(+%dd.)"))
-                         (org-agenda-overriding-header "\nUpcoming Deadlines")))
-            (tags-todo "+university"
-                       ((org-agenda-overriding-header "\nUniversity\n")
-                        (org-agenda-prefix-format " [%8T] ")))))
-          ("d" "Daily goals"
-           ((agenda "" ((org-agenda-files
-                         (list (concat
-                                org-roam-directory "/" org-roam-dailies-directory
-                                (format-time-string "%Y-%m-%d") ".org")))
-                        (org-agenda-skip-schedule-if-done nil)))))
-          ))
-  (add-hook 'org-agenda-mode-hook (lambda () (setq-local show-trailing-whitespace nil)))
+        '(("n" "Agenda / INTR / PROG / NEXT"
+           ((agenda "" (
+                        (org-super-agenda-groups
+                         '((:name "Habits"
+                                  :habit t
+                                  :order 9)
+                           (:anything t)
+                           ))))
+            (todo "INTR" nil)
+            (todo "PROG" nil)
+            (todo "NEXT" nil))
+           nil)))
+
   (setq org-format-latex-options
         (plist-put org-format-latex-options :scale 1.5))
 
@@ -129,10 +126,6 @@
   (require 'org-tempo)
 
   ;; (setq org-use-fast-todo-selection t)
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")))
-  ;; I prefer to log TODO creation also
-  ;; log into LOGBOOK drawer
   (setq org-log-into-drawer t)
   (setq org-log-repeat t)
   ;; org mode hooks
@@ -145,6 +138,10 @@
 			                   (haskell . t)
 			                   (shell . t)
 			                   (plantuml . t))))
+
+(use-package org-super-agenda
+  :config
+  (org-super-agenda-mode))
 
 (use-package org-roam
   :custom
@@ -279,7 +276,9 @@
   (add-hook 'elfeed-show-mode-hook #'olivetti-mode)
   (setq elfeed-feeds
         '("https://neilzone.co.uk/index.xml"
-          "https://evanhahn.com/blog/index.xml")))
+          "https://evanhahn.com/blog/index.xml"
+          "https://geohot.github.io/blog/feed.xml"
+          "https://whhone.com/index.xml")))
 
 (use-package olivetti
   :custom
@@ -357,7 +356,7 @@
   (inhibit-startup-message t)
   (ring-bell-function 'ignore)
   (scroll-margin 8)
-  (show-trailing-whitespace t)
+  (show-trailing-whitespace nil)
   (ediff-window-setup-function 'ediff-setup-windows-plain)
   (custom-file (expand-file-name "custom.el" user-emacs-directory))
   (compilation-scroll-output t)
@@ -408,16 +407,6 @@
    '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
    '(fixed-pitch ((t ( :family "Iosevka" :height 125 :weight normal)))))
 
-  ;; (set-face-attribute 'default nil :family "Terminus" :height 120)
-  ;; (set-face-attribute 'variable-pitch nil :family "ETBembo" :height 140)
-  ;; (set-face-attribute 'fixed-pitch nil :family "Terminus" :height 120)
-
-  ;; (custom-theme-set-faces
-  ;;  'user
-  ;;  '(variable-pitch ((t (:family "ETBembo" :height 140 :weight thin))))
-  ;;  '(fixed-pitch ((t ( :family "Terminus" :height 120 :weight normal)))))
-
-
   (define-prefix-command 'my/window-map)
   (bind-key "C-c w" my/window-map)
 
@@ -438,8 +427,23 @@
   (add-to-list 'custom-theme-load-path
                "~/.emacs.d/themes/")
 
+  (add-hook 'prog-mode-hook (lambda () (setq-local show-trailing-whitespace t)))
+
   ;; (load-theme 'minimal)
   (load-theme 'modus-operandi))
+
+(use-package popper
+  :bind (("M-n"   . popper-cycle)
+         ("M-p"   . popper-toggle))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode)
+  (popper-echo-mode))
 
 (use-package gruvbox-theme)
 
@@ -687,16 +691,15 @@
 
 (use-package embark
   :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  (("C-." . embark-act)
+   ("C-," . embark-export)
+   ("C-;" . embark-dwim)
+   ("C-h B" . embark-bindings))
 
   :init
   (setq prefix-help-command #'embark-prefix-help-command))
 
-(use-package embark-consult
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+(use-package embark-consult)
 
 (use-package consult
   :bind (;; C-c bindings in `mode-specific-map'
@@ -842,7 +845,12 @@
 (use-package svelte-mode)
 
 (use-package typst-ts-mode
-  :straight '(:type git :host codeberg :repo "meow_king/typst-ts-mode"))
+  :straight '(:type git :host codeberg :repo "meow_king/typst-ts-mode")
+  :config
+  (defun tinymist-pin-main ()
+    (interactive)
+    (eglot-execute-command (eglot-current-server) "tinymist.pinMain" (vector (buffer-file-name)))
+    (message "Pinned main to %s" (buffer-file-name))))
 
 (use-package typescript-mode
   :config

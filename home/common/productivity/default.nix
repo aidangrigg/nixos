@@ -28,5 +28,6 @@
     anki-bin
     easyeffects
     thunderbird
+    poppler-utils # pdftotext
   ]);
 }
