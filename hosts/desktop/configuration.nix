@@ -184,7 +184,6 @@
     ];
   };
 
-  programs.adb.enable = true;
   services.atd.enable = true;
 
   users.users = {
@@ -304,7 +303,7 @@
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ ];
+    allowedTCPPorts = [ 25565 ];
     allowedUDPPorts = [ ];
     # allowedUDPPortRanges = [
     #   { from = 16571; to = 16604; }
@@ -354,7 +353,6 @@
     vim
     wget
     which
-    blender-hip
     borgbackup
 
     lact

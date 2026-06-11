@@ -23,7 +23,7 @@ in {
     roboto-mono
     iosevka-bin
     (iosevka-bin.override { variant = "Aile"; })
-    etBook
+    et-book
     terminus_font
     siji
     scientifica

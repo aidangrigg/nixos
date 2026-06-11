@@ -36,6 +36,8 @@
     homeDirectory = "/home/aidan";
   };
 
+  gtk.gtk4.theme = config.gtk.theme;
+
   gtk = {
     enable = true;
     iconTheme = {
@@ -72,7 +74,7 @@
 
     piper
 
-    xorg.xhost
+    xhost
 
     qmk
 
