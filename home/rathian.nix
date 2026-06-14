@@ -12,7 +12,7 @@
   # You can import other home-manager modules here
   imports = [
     ./common/emacs
-    ./common/de/river
+    ./common/de/xmonad
     ./common/cli
     ./common/syncthing
     ./common/productivity
@@ -65,6 +65,8 @@
     pavucontrol
     unzip
     zip
+
+    freecad
   ];
 
   programs.bashmount.enable = true;

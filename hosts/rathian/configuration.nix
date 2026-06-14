@@ -122,7 +122,6 @@
     };
   };
 
-
   environment.systemPackages = (with pkgs; [
     firefox
     git
@@ -140,31 +139,33 @@
     isNormalUser = true;
   };
 
-    # wm and dm
-#  services.xserver = {
-#    enable = true;
-#    xkb = {
-#      layout = "us";
-#      variant = "";
-#    };
-#
-#    autoRepeatDelay = 250;
-#    autoRepeatInterval = 50;
-#
-#    displayManager.lightdm.enable = true;
-#    windowManager.xmonad = {
-#      enable = true;
-#    #   enableContribAndExtras = true;
-#    };
-  #  };
-
   services.displayManager = {
     ly.enable = true;
+    defaultSession = "none+xmonad";
   };
 
-  programs.river.enable = true;
+  services.upower.enable = true;
 
-    # screen lock
+  # wm and dm
+  services.xserver = {
+    enable = true;
+    xkb = {
+      layout = "us";
+      options = "ctrl:swapcaps";
+      variant = "";
+    };
+
+    autoRepeatDelay = 250;
+    autoRepeatInterval = 50;
+
+    dpi = 96;
+
+    windowManager.xmonad = {
+      enable = true;
+    };
+  };
+
+  # screen lock
   programs.i3lock = {
     enable = true;
     package = pkgs.i3lock-fancy-rapid;
@@ -179,10 +180,14 @@
     prompt.enable = true;
   };
 
+  networking.enableIPv6 = true;
+
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [  ];
     allowedUDPPorts = [  ];
+    allowedTCPPortRanges = [ { from = 16571; to = 16604; } ];
+    allowedUDPPortRanges = [ { from = 16571; to = 16604; } ];
   };
 
   services.tailscale.enable = true;
