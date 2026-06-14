@@ -193,13 +193,13 @@ myManageHook = composeAll
     ] <+> NSP.namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
-  spawnOnce $
-    intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165 --primary"
-                       ,"xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
-                       ,"feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png /home/aidan/nix/assets/backgrounds/savage-state-vertical.jpg"
-                       ,"xset s off"
-                       ,"xset -dpms"
-                       ,"xset r rate 250 50"]
+  -- spawnOnce $
+    -- intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165 --primary"
+    --                    ,"xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
+    --                    ,"feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png /home/aidan/nix/assets/backgrounds/savage-state-vertical.jpg"
+    --                    ,"xset s off"
+    --                    ,"xset -dpms"
+    --                    ,"xset r rate 250 50"]
 
   spawnOnce "xsetroot -cursor_name Quintom_Ink"
   -- spawnOnce "xset r rate 250 50"
