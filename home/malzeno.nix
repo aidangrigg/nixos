@@ -61,7 +61,6 @@
     pavucontrol
     vlc
     mpv
-    peek
 
     inkscape
     gimp

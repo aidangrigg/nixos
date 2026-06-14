@@ -17,7 +17,6 @@ in {
   home.packages = with pkgs; [
     # screenshot util
     maim # png
-    peek # gif/mp4
 
     # background
     feh
@@ -120,7 +119,6 @@ in {
         highlight = "#e0e0e0";
         font = "Terminus 8";
       };
-
     };
   };
 }

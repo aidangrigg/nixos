@@ -150,7 +150,6 @@ myConfig = def
     , ("M-x"                    , spawn Main.launcher)
     , ("M-q"                    , refresh)
     , ("M-s"                    , spawn "maim -s | xclip -selection clipboard -t image/png")
-    , ("M-S-s"                  , spawn "peek")
     , ("M-<U>"                  , adjustBrightness 0.05)
     , ("M-<D>"                  , adjustBrightness (-0.05))
     , ("M-S-e"                  , spawn fileBrowser)
