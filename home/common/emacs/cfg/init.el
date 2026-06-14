@@ -68,11 +68,6 @@
      ("s" "Shopping List" entry
       (file "~/sync/notes/org/shopping_list.org")
       "* TODO %?\n")))
-  (org-agenda-files
-   '("~/sync/notes/org/tasks.org"
-     "~/sync/notes/org/mobile.org"
-     "~/sync/notes/org/birthdays.org"
-     "~/sync/notes/org/habits.org"))
   (org-icalendar-include-todo t)
   (org-icalendar-use-scheduled '(todo-start event-if-todo))
   (org-icalendar-use-deadline '(todo-due event-if-todo))
@@ -83,6 +78,12 @@
   :config
   ;; agenda stuff
   ;; TODO keywords.
+
+  (setq org-agenda-files
+   '("~/sync/notes/org/tasks.org"
+     "~/sync/notes/org/mobile.org"
+     "~/sync/notes/org/birthdays.org"
+     "~/sync/notes/org/habits.org"))
 
   (setq org-use-fast-todo-selection 'auto)
   (setq org-todo-keywords
