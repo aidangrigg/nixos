@@ -16,6 +16,7 @@
       defaultApplications = {
         "application/pdf" = "zathura.desktop";
         "image/png" = "feh.desktop";
+        "image/jpg" = "feh.desktop";
         "text/html" = "firefox.desktop";
         "x-scheme-handler/http" = "firefox.desktop";
         "x-scheme-handler/https" = "firefox.desktop";

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let xmobar-fork = pkgs.xmobar.overrideAttrs (old: {
       version = "git";
       src = pkgs.fetchFromCodeberg {
@@ -90,7 +90,8 @@ in {
         idle_threshold = "5s";
 
         follow = "mouse";
-        geometry = "300x60-20+48";
+        width = "(300, 600)";
+        height = "(60, 700)";
 
         indicate_hidden = "yes";
         shrink = "no";
@@ -100,8 +101,6 @@ in {
         frame_width = 2;
         line_height = 4;
 
-        markup = "full";
-        format = "%s\n%b";
         alignment = "left";
         show_age_threshold = 60;
         word_wrap = "yes";
@@ -117,7 +116,7 @@ in {
         background = "#1a1a1a";
         foreground = "#e0e0e0";
         highlight = "#e0e0e0";
-        font = "Terminus 8";
+        font = "Iosevka 10";
       };
     };
   };
