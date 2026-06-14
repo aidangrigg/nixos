@@ -34,5 +34,11 @@
         runtimeInputs = [ pkgs.yt-dlp pkgs.beets ];
         text = lib.readFile ./src/getalbum;
       })
+      (pkgs.writeShellApplication {
+        name = "dmenu-nix";
+        runtimeInputs = [];
+        text = lib.readFile ./src/dmenu-nix.sh;
+      })
+
   ];
 }

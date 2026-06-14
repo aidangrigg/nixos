@@ -354,6 +354,7 @@
     wget
     which
     borgbackup
+    lxqt.lxqt-policykit
 
     lact
   ]);

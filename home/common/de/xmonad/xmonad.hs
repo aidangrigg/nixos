@@ -166,6 +166,7 @@ myConfig = def
     , ("M-c"                    , activateScratchpad "ghci")
     , ("M-<Tab>"                , activatePreviousScratchpad)
     , ("M-a"                    , switchAudioInput)
+    , ("M-S-n"                  , spawn "dmenu-nix")
     , ("M-<Esc>"                , spawn "find-cursor --color white")
     ] ++ map (workspaceBinding 0) [1..7] ++ map (workspaceBinding 1) [8..9]
     where workspaceBinding screenId ws =
@@ -207,6 +208,7 @@ myStartupHook = do
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
   setWMName "LG3D"
+  spawnOnce "lxqt-policykit-agent"
 
 data TABBED = TABBED deriving (Read, Show, Eq, Typeable)
 
