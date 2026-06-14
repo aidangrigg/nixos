@@ -65,7 +65,7 @@
   };
 
   networking = {
-    hostName = "nixos-laptop";
+    hostName = "rathian";
     networkmanager.enable = true;
   };
 

@@ -11,7 +11,6 @@
   # You can import other home-manager modules here
   imports = [
     ./common/emacs
-    # ./common/de/hyprland
     ./common/de/xmonad
     ./common/cli
     ./common/syncthing

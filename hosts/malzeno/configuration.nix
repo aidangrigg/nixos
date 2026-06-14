@@ -59,7 +59,7 @@
 
   # internet
   networking = {
-    hostName = "nixos-desktop";
+    hostName = "malzeno";
     networkmanager = {
       enable = true;
       dns = "none";

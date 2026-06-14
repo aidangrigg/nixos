@@ -16,17 +16,17 @@
       overlays = import ./overlays {inherit inputs;};
 
       nixosConfigurations = {
-        desktop = nixpkgs.lib.nixosSystem {
+        malzeno = nixpkgs.lib.nixosSystem {
           specialArgs = {inherit inputs outputs;};
           modules = [
-            ./hosts/desktop/configuration.nix
+            ./hosts/malzeno/configuration.nix
           ];
         };
 
-        laptop = nixpkgs.lib.nixosSystem {
+        rathian = nixpkgs.lib.nixosSystem {
           specialArgs = {inherit inputs outputs;};
           modules = [
-            ./hosts/laptop/configuration.nix
+            ./hosts/rathian/configuration.nix
           ];
         };
       };
@@ -34,16 +34,16 @@
       homeConfigurations = let
         dotfilesDirectory = "/home/aidan/nix/dotfiles";
       in {
-        desktop = home-manager.lib.homeManagerConfiguration {
+        malzeno = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
-        modules = [./home/desktop.nix];
+        modules = [./home/malzeno.nix];
         };
 
-        laptop = home-manager.lib.homeManagerConfiguration {
+        rathian = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
-          modules = [./home/laptop.nix];
+          modules = [./home/rathian.nix];
         };
       };
     };
