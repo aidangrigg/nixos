@@ -30,4 +30,6 @@
     thunderbird
     poppler-utils # pdftotext
   ]);
+
+  services.easyeffects.enable = true;
 }

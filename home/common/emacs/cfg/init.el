@@ -228,11 +228,10 @@
   (org-timed-alerts-default-alert-props nil)
   (org-timed-alerts-warning-times '(-10 -5))
   (org-timed-alerts-agenda-hook-p t)
+  (org-timed-alerts-default-alert-props '(:title (lambda () (save-excursion (org-get-heading t nil t t)))))
   (org-timed-alerts-todo-exclusions `("DONE"))
-  (org-timed-alert-final-alert-string "IT IS %alert-time\n\n%todo %headline")
-  (org-timed-alert-warning-string (concat "%todo %headline\n at %alert-time\n "
-                                          "it is now %current-time\n "
-                                          "*THIS IS YOUR %warning-time MINUTE WARNING*"))
+  (org-timed-alerts-final-alert-string "%todo %headline")
+  (org-timed-alerts-warning-string (concat "%todo %headline at %alert-time\n " "%warning-time minute warning"))
   :config
   (add-hook 'org-mode-hook #'org-timed-alerts-mode))
 
@@ -431,6 +430,8 @@
                "~/.emacs.d/themes/")
 
   (add-hook 'prog-mode-hook (lambda () (setq-local show-trailing-whitespace t)))
+
+  (setq modus-themes-mixed-fonts t)
 
   ;; (load-theme 'minimal)
   (load-theme 'modus-operandi))
