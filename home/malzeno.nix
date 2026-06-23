@@ -82,8 +82,6 @@
     kdePackages.kdenlive
   ];
 
-  services.emacs.enable = true;
-
   programs.bashmount.enable = true;
   programs.obs-studio.enable = true;
 
