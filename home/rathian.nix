@@ -64,6 +64,8 @@
     zip
 
     freecad
+    brightnessctl
+    acpi
   ];
 
   programs.bashmount.enable = true;

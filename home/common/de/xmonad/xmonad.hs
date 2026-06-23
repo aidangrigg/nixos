@@ -157,6 +157,8 @@ myConfig = def
     , ("M-f"                    , sendMessage $ Toggle TABBED)
     , ("<XF86AudioRaiseVolume>" , adjustVolume (5))
     , ("<XF86AudioLowerVolume>" , adjustVolume (-5))
+    , ("<XF86MonBrightnessDown>", spawn "brightnessctl set 5%-")
+    , ("<XF86MonBrightnessUp>"  , spawn "brightnessctl set +5%")
     , ("M-S-p"                  , spawn "dmenu-powermenu")
     , ("M-p"                    , windows copyToAll) -- Pin to all workspaces
     , ("M-S-a"                  , killAllOtherCopies) -- remove window from all but current
