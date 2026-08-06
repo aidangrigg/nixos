@@ -87,7 +87,7 @@
 
   (setq org-use-fast-todo-selection 'auto)
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "INTR(i)" "|" "DONE(d!)")))
+        '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "INTR(i)" "|" "DONE(d!)" "CNCL(c)")))
 
   ;; Show the daily agenda by default.
   (setq org-agenda-span 'day)
@@ -151,28 +151,28 @@
   (org-roam-completion-everywhere t)
   (org-roam-directory (file-truename "~/sync/notes/org/zettel"))
   (org-roam-capture-templates
-	'(("m" "main" plain "%?"
-           :target
-           (file+head
-            "main/${slug}.org"
-            "#+title: ${title}\n")
-           :immediate-finish t
-           :unnarrowed t)
-          ("e" "empty" plain "%?"
-           :target
-           (file+head
-            "main/${slug}.org"
-            "#+title: ${title}\n#+filetags: :empty:\n")
-           :immediate-finish t
-           :unarrowed t)
-          ("yt" "youtube video" plain "%?"
-           :target
-           (file+head
-            "reference/${slug}.org"
-            "#+title: ${title}\n#+filetags: :notes:youtube:\n")
-           :immediate-finish t
-           :unarrowed t)
-          ))
+   '(("m" "main" plain "%?"
+      :target
+      (file+head
+       "main/${slug}.org"
+       "#+title: ${title}\n")
+      :immediate-finish t
+      :unnarrowed t)
+     ("e" "empty" plain "%?"
+      :target
+      (file+head
+       "main/${slug}.org"
+       "#+title: ${title}\n#+filetags: :empty:\n")
+      :immediate-finish t
+      :unarrowed t)
+     ("yt" "youtube video" plain "%?"
+      :target
+      (file+head
+       "reference/${slug}.org"
+       "#+title: ${title}\n#+filetags: :notes:youtube:\n")
+      :immediate-finish t
+      :unarrowed t)
+     ))
   :bind (("C-c r l" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
          ("C-c r g" . org-roam-graph)
@@ -187,6 +187,21 @@
   (defun my/org-roam-search ()
     (interactive)
     (consult-ripgrep org-roam-directory))
+  (defun my/org-roam-weekly-goto-week ()
+    (interactive)
+    (let* ((week (format-time-string "%U"))
+           (year (format-time-string "%Y"))
+           (title (concat "Week " week)))
+    (org-roam-capture- :templates
+                       '(("w" "weekly" plain "%?" :if-new
+                          (file+head "weekly/${year}/${week}.org"
+                                     "#+title: ${title}\n")
+                          :immediate-finish t
+                          :unnarrowed t))
+                       :info (list :week (concat "week" week) :year year)
+                       :node (org-roam-node-create :title title)
+                       :props '(:finalize find-file))
+    ))
   (org-roam-db-autosync-mode)
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template
@@ -434,11 +449,9 @@
   (setq modus-themes-mixed-fonts t)
 
   ;; (load-theme 'minimal)
-  (load-theme 'modus-operandi))
+  (load-theme 'minimal-light))
 
 (use-package popper
-  :bind (("M-n"   . popper-cycle)
-         ("M-p"   . popper-toggle))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -525,7 +538,6 @@
 (use-package multiple-cursors)
 
 (use-package meow
-  :after surround
   :preface
   (defun my/page-down ()
     (interactive)
@@ -575,6 +587,7 @@
      '("SPC b" . consult-buffer)
      '("SPC f" . consult-fd)
      '("SPC s" . consult-ripgrep)
+     '("z" . popper-toggle)
      '("b" . my/buffer-dwim)
      '("f" . my/find-dwim)
      '("s" . my/rg-dwim)
