@@ -98,9 +98,8 @@
       # servers to improve privacy.
       # [0] https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md
       server_names = [
-        "mullvad-base-doh"
-        # "quad9-doh-ip4-port443-nofilter-pri"
-        # "quad9-doh-ip6-port443-nofilter-pri"
+        "quad9-doh-ip4-port443-filter-pri"
+        "quad9-doh-ip6-port443-filter-pri"
       ];
     };
   };
@@ -280,11 +279,6 @@
 
     # Enable TPM emulation (for Windows 11)
     qemu = {
-      package = pkgs.qemu_kvm;
-      # ovmf = {
-      #   enable = true;
-      #   packages = [pkgs.OVMFFull.fd];
-      # };
       swtpm.enable = true;
     };
   };
