@@ -37,13 +37,19 @@
         malzeno = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
-        modules = [./home/malzeno.nix];
+          modules = [./home/malzeno.nix];
         };
 
         rathian = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
           modules = [./home/rathian.nix];
+        };
+
+        work = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          extraSpecialArgs = {inherit inputs outputs dotfilesDirectory pkgs-unstable;};
+          modules = [./home/work.nix];
         };
       };
     };
