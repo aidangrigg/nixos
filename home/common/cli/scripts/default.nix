@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }: {
+{ pkgs, pkgs-unstable, lib, ... }: {
   home.packages =
     let
       dmenu = (pkgs.writeShellApplication {
@@ -31,7 +31,7 @@
       })
       (pkgs.writeShellApplication {
         name = "getalbum";
-        runtimeInputs = [ pkgs.yt-dlp pkgs.beets ];
+        runtimeInputs = [ pkgs-unstable.yt-dlp pkgs.beets ];
         text = lib.readFile ./src/getalbum;
       })
       (pkgs.writeShellApplication {

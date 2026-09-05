@@ -1,8 +1,8 @@
-{ pkgs, ... }: {
+{ pkgs, pkgs-unstable, ... }: {
 
   home.packages = with pkgs; [
     mpc
-    yt-dlp
+    pkgs-unstable.yt-dlp
     picard
     ueberzugpp
   ];
