@@ -19,6 +19,7 @@
     ./common/music
     ./common/gaming
     ./common/productivity/qutebrowser.nix
+    ./common/productivity/latex.nix
     ./common/productivity/gamedev.nix
   ];
 

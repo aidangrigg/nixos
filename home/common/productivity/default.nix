@@ -1,5 +1,5 @@
 { pkgs, pkgs-unstable, ... }: {
-  imports = [ ./latex.nix ];
+  imports = [];
 
   programs.zathura = {
     enable = true;
