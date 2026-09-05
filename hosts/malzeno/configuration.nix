@@ -218,7 +218,7 @@
   };
 
   # screen lock
-  programs.slock.enable = true;
+  programs.i3lock.enable = true;
   services.displayManager.defaultSession = "none+xmonad";
 
   # SDDM Display Manager

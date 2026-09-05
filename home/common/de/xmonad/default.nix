@@ -29,8 +29,8 @@ in {
     pulseaudio
 
     xdotool
-    xsecurelock
     find-cursor
+    xidlehook
   ];
 
   programs.patched-dmenu.enable = true;

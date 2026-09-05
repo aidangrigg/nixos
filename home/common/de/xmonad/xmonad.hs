@@ -210,6 +210,8 @@ myStartupHook = do
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
   setWMName "LG3D"
   spawnOnce "lxqt-policykit-agent"
+  spawnOnce "xset s off && xset -dpms"
+  spawnOnce "xidlehook --not-when-fullscreen --not-when-audio --timer 600 'i3lock -c 3e688a & xset dpms force off' ''"
 
 data TABBED = TABBED deriving (Read, Show, Eq, Typeable)
 
