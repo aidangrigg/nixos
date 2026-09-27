@@ -20,6 +20,16 @@
           specialArgs = {inherit inputs outputs;};
           modules = [
             ./hosts/malzeno/configuration.nix
+            # home-manager.nixosModules.home-manager
+            # {
+            #   home-manager.useGlobalPkgs = true;
+            #   home-manager.useUserPackages = true;
+            #   home-manager.extraSpecialArgs = {inherit inputs outputs pkgs-unstable;};
+            #   home-manager.users = {
+            #     aidan = import ./home/aidan.nix;
+            #     work  = import ./home/work.nix;
+            #   };
+            # }
           ];
         };
 

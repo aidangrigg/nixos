@@ -20,19 +20,19 @@
     enable32Bit = true;
   };
 
-  systemd.tmpfiles.rules =
-    let
-      rocmEnv = pkgs.symlinkJoin {
-        name = "rocm-combined";
-        paths = with pkgs.rocmPackages; [
-          rocblas
-          hipblas
-          clr
-        ];
-      };
-    in [
-      "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
-    ];
+  # systemd.tmpfiles.rules =
+  #   let
+  #     rocmEnv = pkgs.symlinkJoin {
+  #       name = "rocm-combined";
+  #       paths = with pkgs.rocmPackages; [
+  #         rocblas
+  #         hipblas
+  #         clr
+  #       ];
+  #     };
+  #   in [
+  #     "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+  #   ];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/5505d96d-8061-4be0-9edb-e3d45f56f2e4";
