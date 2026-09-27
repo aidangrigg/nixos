@@ -2,6 +2,7 @@
   imports = [
     ./common/global
     ./common/cli
+    ./common/vpn
   ];
 
   home = {
