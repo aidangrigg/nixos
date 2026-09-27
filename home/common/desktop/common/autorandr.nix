@@ -1,4 +1,4 @@
-{ pkgs, lib, nixpkgs, ... }: {
+{ pkgs, lib, config, ... }: {
   home.packages = with pkgs; [
     autorandr
   ];
@@ -24,7 +24,7 @@
         };
 
         hooks.postswitch = ''
-          feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png
+          feh --bg-center ${config.home.homeDirectory}/nix/assets/backgrounds/savage-state-horizontal.png
         '';
       };
 
@@ -52,7 +52,7 @@
         };
 
         hooks.postswitch = ''
-          feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png /home/aidan/nix/assets/backgrounds/savage-state-vertical.jpg
+          feh --bg-center ${config.home.homeDirectory}/nix/assets/backgrounds/savage-state-horizontal.png ${config.home.homeDirectory}/nix/assets/backgrounds/savage-state-vertical.jpg
         '';
 
       };

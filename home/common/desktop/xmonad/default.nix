@@ -10,8 +10,10 @@ let xmobar-fork = pkgs.xmobar.overrideAttrs (old: {
     });
 in {
   imports = [
-    ./../common
-    ./../../suckless
+    ../common
+    ../common/autorandr.nix
+
+    ../../suckless
   ];
 
   home.packages = with pkgs; [

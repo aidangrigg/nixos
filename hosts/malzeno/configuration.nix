@@ -3,6 +3,7 @@
     ./hardware-configuration.nix
 
     ../common/pipewire.nix
+    ../common/syncthing.nix
     ../common/global
     ../common/desktop/xmonad
     ../common/vm

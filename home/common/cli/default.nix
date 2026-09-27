@@ -2,10 +2,20 @@
   imports = [
     ./bash.nix
     ./alacritty.nix
-    ./scripts/default.nix
+    ./scripts
   ];
 
+  programs.bashmount.enable = true;
+
   home.packages = with pkgs; [
+    ghc
+    ghcid
+
+    file
+    zip
+    unzip
+    ffmpeg
+
     ripgrep
     fzf
     fd

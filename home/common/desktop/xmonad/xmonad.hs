@@ -195,15 +195,8 @@ myManageHook = composeAll
     ] <+> NSP.namedScratchpadManageHook myScratchpads
 
 myStartupHook = do
-  -- spawnOnce $
-    -- intercalate " && " ["xrandr --output DP-2 --mode 2560x1440 --rate 165 --primary"
-    --                    ,"xrandr --output HDMI-2 --mode 1920x1080 -r 165 --left-of DP-2 --rotate right"
-    --                    ,"feh --bg-center /home/aidan/nix/assets/backgrounds/savage-state-horizontal.png /home/aidan/nix/assets/backgrounds/savage-state-vertical.jpg"
-    --                    ,"xset s off"
-    --                    ,"xset -dpms"
-    --                    ,"xset r rate 250 50"]
-
   spawnOnce "xsetroot -cursor_name Quintom_Ink"
+
   -- spawnOnce "xset r rate 250 50"
   -- Fixes `xdg-open`. See here:
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button

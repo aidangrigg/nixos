@@ -1,4 +1,4 @@
-{ pkgs, config, dotfilesDirectory, ... }: {
+{ pkgs, config, ... }: {
   imports = [
     ./../common
   ];
@@ -203,9 +203,9 @@
   services.hyprpaper.enable = true;
 
 	home.file = {
-    ".config/hypr/general.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/general.conf";
-    ".config/hypr/hyprbar.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/hyprbar.conf";
-    ".config/hypr/hyprsunset.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/hyprsunset.conf";
+    # ".config/hypr/general.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/general.conf";
+    # ".config/hypr/hyprbar.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/hyprbar.conf";
+    # ".config/hypr/hyprsunset.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDirectory}/hypr/hyprsunset.conf";
   };
 
   wayland.windowManager.hyprland = {

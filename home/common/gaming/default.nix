@@ -3,5 +3,7 @@
     osu-lazer-bin
     gamescope
     discord
+    prismlauncher
+    mangohud
   ];
 }

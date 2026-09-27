@@ -27,8 +27,7 @@
     '';
 
     shellAliases = {
-      hms = "home-manager switch --flake ~/nix/#$(hostname)";
-      nrs = "sudo nixos-rebuild switch --flake ~/nix#$(hostname)";
+      rebuild = "sudo nixos-rebuild switch --flake ~/nix#$(hostname)";
       del = "${pkgs.trash-cli}/bin/trash";
     };
   };

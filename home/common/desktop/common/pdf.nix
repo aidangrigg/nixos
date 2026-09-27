@@ -1,6 +1,4 @@
 { pkgs, pkgs-unstable, ... }: {
-  imports = [];
-
   programs.zathura = {
     enable = true;
     options = {
@@ -17,19 +15,9 @@
     };
   };
 
-  home.packages = (with pkgs; [
-    xournalpp
-    hunspell
-    hunspellDicts.en_AU
+  home.packages = with pkgs; [
     pdfpc
-    libreoffice
-    zotero
-    plantuml
-    anki-bin
-    easyeffects
-    thunderbird
+    xournalpp
     poppler-utils # pdftotext
-  ]);
-
-  services.easyeffects.enable = true;
+  ];
 }

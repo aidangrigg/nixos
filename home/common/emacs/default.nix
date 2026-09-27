@@ -1,5 +1,6 @@
 { pkgs, config, ... }: let
-  dir = "/home/aidan/nix/home/common/emacs";
+  mkSymlink = config.lib.file.mkOutOfStoreSymlink;
+  nixDir = "${config.home.homeDirectory}/nix/home/common/emacs";
 in {
   programs.emacs = {
     enable = true;
@@ -13,7 +14,7 @@ in {
   };
 
   home.file = {
-    ".emacs.d/init.el".source = config.lib.file.mkOutOfStoreSymlink "${dir}/cfg/init.el";
-    ".emacs.d/snippets".source = config.lib.file.mkOutOfStoreSymlink "${dir}/cfg/snippets/";
+    ".emacs.d/init.el".source = mkSymlink "${nixDir}/cfg/init.el";
+    ".emacs.d/snippets".source = mkSymlink "${nixDir}/cfg/snippets/";
   };
 }
