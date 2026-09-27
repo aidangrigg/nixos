@@ -898,4 +898,7 @@
 
 (use-package go-mode)
 
+
+(use-package protobuf-mode)
+
 (put 'upcase-region 'disabled nil)

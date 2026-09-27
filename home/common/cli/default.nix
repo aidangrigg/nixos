@@ -6,6 +6,7 @@
   ];
 
   programs.bashmount.enable = true;
+  programs.nh.enable = true; # useful nix helper
 
   home.packages = with pkgs; [
     ghc
