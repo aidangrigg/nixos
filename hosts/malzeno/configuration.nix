@@ -37,17 +37,12 @@
     flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
   in {
     settings = {
-      # Enable flakes and new 'nix' command
       experimental-features = "nix-command flakes";
-      # Opinionated: disable global registry
       flake-registry = "";
-      # Workaround for https://github.com/NixOS/nix/issues/9574
       nix-path = config.nix.nixPath;
     };
-    # Opinionated: disable channels
     channel.enable = false;
 
-    # Opinionated: make flake registry and nix path match flake inputs
     registry = lib.mapAttrs (_: flake: {inherit flake;}) flakeInputs;
     nixPath = lib.mapAttrsToList (n: _: "${n}=flake:${n}") flakeInputs;
   };
@@ -62,45 +57,6 @@
     hostName = "malzeno";
     networkmanager = {
       enable = true;
-      dns = "none";
-    };
-    nameservers = [ "127.0.0.1" "::1" ];
-  };
-
-  # dns
-
-  services.dnscrypt-proxy = {
-    enable = true;
-    # Settings reference:
-    # https://github.com/DNSCrypt/dnscrypt-proxy/blob/master/dnscrypt-proxy/example-dnscrypt-proxy.toml
-    settings = {
-      ipv4_servers = true;
-      ipv6_servers = true;
-      require_dnssec = true;
-      # Maximum log files size in MB
-      log_files_max_size = 10;
-      # Helpful to check if dnscrypt-proxy is actually used
-      query_log.file = "/var/log/dnscrypt-proxy/query.log";
-      sources.public-resolvers = {
-        urls = [
-          "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolver/smaster/v3/public-resolvers.md"
-          "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
-        ];
-        cache_file = "/var/cache/dnscrypt-proxy/public-resolvers.md";
-        minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
-      };
-      # List chosen from [0]. I only include servers/providers that:
-      # - provide DNSSEC and DoH
-      # - do no filtering and no logging (at least claim so)
-      # - have servers in Europe
-      #
-      # dnscrypt-proxy will sort this by latency but also rotate the DNS
-      # servers to improve privacy.
-      # [0] https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md
-      server_names = [
-        "quad9-doh-ip4-port443-filter-pri"
-        "quad9-doh-ip6-port443-filter-pri"
-      ];
     };
   };
 
@@ -109,7 +65,6 @@
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
-
 
   programs.nh = {
     enable = true;
@@ -135,12 +90,6 @@
   # keyboard
   hardware.keyboard.qmk.enable = true;
 
-  # VR
-
-  programs.alvr = {
-    enable = true;
-    openFirewall = true;
-  };
 
   # flatpak
   services.flatpak.enable = true;
@@ -167,12 +116,6 @@
       LC_TELEPHONE = "en_AU.UTF-8";
       LC_TIME = "en_AU.UTF-8";
     };
-  };
-
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
   };
 
   services.printing = {
