@@ -7,10 +7,6 @@
 (setq eglot-code-action-indicator "")
 (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
 
-(add-to-list 'eglot-server-programs
-             `(typst-ts-mode . ,(eglot-alternatives '(("tinymist") ("typst-lsp"))))
-             `(python-mode . ,(eglot-alternatives '(("pylsp") ("pyright")))))
-
 (with-eval-after-load 'eglot
   (defvar-keymap my/eglot-map
     :doc "org-mode bindings"
@@ -18,6 +14,10 @@
     "e"  #'flymake-show-diagnostics-buffer
     "d"  #'consult-flymake
     "r"  #'eglot-rename)
+
+  (add-to-list 'eglot-server-programs
+               `(typst-ts-mode . ,(eglot-alternatives '(("tinymist") ("typst-lsp"))))
+               `(python-mode . ,(eglot-alternatives '(("pylsp") ("pyright")))))
 
   (keymap-set eglot-mode-map "C-c l" my/eglot-map)
   (keymap-set eglot-mode-map "M-q"   #'eglot-format-buffer)

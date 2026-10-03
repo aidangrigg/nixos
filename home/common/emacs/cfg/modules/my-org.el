@@ -56,7 +56,7 @@
 (add-hook 'org-roam-capture-new-node-hook #'my/tag-new-node-as-draft)
 (add-hook 'org-mode-hook 'variable-pitch-mode)
 (add-hook 'org-mode-hook 'org-indent-mode)
-(add-hook 'org-mode-hook #'org-timed-alerts-mode)
+;; (add-hook 'org-mode-hook #'org-timed-alerts-mode)
 
 ;; binds
 
@@ -158,6 +158,18 @@
 (setq org-plantuml-exec-mode 'plantuml)
 
 ;; org roam
+
+
+(require 'org-roam)
+(cl-defmethod org-roam-node-type ((node org-roam-node))
+  "Return the TYPE of NODE."
+  (condition-case nil
+      (file-name-nondirectory
+       (directory-file-name
+        (file-name-directory
+         (file-relative-name (org-roam-node-file node) org-roam-directory))))
+    (error "")))
+
 (setq org-roam-node-display-template
       (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
