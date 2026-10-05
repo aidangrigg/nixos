@@ -69,6 +69,8 @@
   (meow-motion-define-key
    '("j" . meow-next)
    '("k" . meow-prev)
+   '("h" . meow-left)
+   '("l" . meow-right)
    '("D" . my/page-down)
    '("U" . my/page-up)
    '("<escape>" . ignore))

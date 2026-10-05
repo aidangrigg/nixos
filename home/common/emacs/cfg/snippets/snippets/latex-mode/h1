@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: h1
-# key: h1
-# --
-\section{${1:title}}

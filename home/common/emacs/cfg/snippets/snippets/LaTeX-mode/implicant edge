@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: implicant edge
-# key: imple
-# --
-\implicantedge{${1}}{${2}}{${3}}{${4}}
