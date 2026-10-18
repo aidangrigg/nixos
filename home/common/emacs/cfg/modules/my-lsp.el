@@ -5,7 +5,7 @@
     (message "Pinned main to %s" (buffer-file-name)))
 
 (setq eglot-code-action-indicator "")
-(setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+(setq eglot-ignored-server-capabilities '(:inlayHintProvider :documentOnTypeFormattingProvider))
 
 (with-eval-after-load 'eglot
   (defvar-keymap my/eglot-map

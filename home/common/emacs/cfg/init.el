@@ -9,3 +9,5 @@
 (require 'my-rss)
 (require 'my-ui)
 (require 'my-lsp)
+(require 'my-languages)
+

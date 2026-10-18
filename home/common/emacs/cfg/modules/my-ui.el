@@ -1,3 +1,5 @@
+(require 'ef-themes)
+
 (defun my/disable-scroll-bars (frame)
   (modify-frame-parameters
    frame
@@ -59,5 +61,7 @@
               (2 . (1.3))
               (3 . (1.1))
               (4 . (1.1)))))
+
+(ef-themes-load-random-light)
 
 (provide 'my-ui)
