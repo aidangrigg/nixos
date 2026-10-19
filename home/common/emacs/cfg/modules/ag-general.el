@@ -66,6 +66,6 @@
       consult-async-input-throttle 0.1
       consult-async-refresh-delay 0.05)
 
-(provide 'my-general)
+(provide 'ag-general)
 
 

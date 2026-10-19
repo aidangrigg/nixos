@@ -1,12 +1,12 @@
 (require 'ef-themes)
 
-(defun my/disable-scroll-bars (frame)
+(defun ag/disable-scroll-bars (frame)
   (modify-frame-parameters
    frame
    '((vertical-scroll-bars . nil)
      (horizontal-scroll-bars . nil))))
 
-(add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+(add-hook 'after-make-frame-functions 'ag/disable-scroll-bars)
 
 (add-hook 'text-mode-hook #'visual-line-mode)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
@@ -64,4 +64,4 @@
 
 (ef-themes-load-random-light)
 
-(provide 'my-ui)
+(provide 'ag-ui)

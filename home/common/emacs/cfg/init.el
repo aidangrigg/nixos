@@ -2,12 +2,12 @@
 
 (add-to-list 'load-path (f-canonical "~/.emacs.d/modules/"))
 
-(require 'my-general)
-(require 'my-keybind)
-(require 'my-latex)
-(require 'my-org)
-(require 'my-rss)
-(require 'my-ui)
-(require 'my-lsp)
-(require 'my-languages)
+(require 'ag-general)
+(require 'ag-keybind)
+(require 'ag-latex)
+(require 'ag-org)
+(require 'ag-rss)
+(require 'ag-ui)
+(require 'ag-lsp)
+(require 'ag-langs)
 

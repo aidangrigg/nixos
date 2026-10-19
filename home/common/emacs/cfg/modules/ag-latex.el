@@ -3,4 +3,4 @@
 (setq TeX-master nil)
 (setq TeX-view-program-selection '((output-pdf "Zathura")))
 
-(provide 'my-latex)
+(provide 'ag-latex)

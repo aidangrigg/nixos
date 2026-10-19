@@ -5,19 +5,19 @@
 
 ;; fn
 
-(defun my/daily-agenda ()
+(defun ag/daily-agenda ()
   (interactive)
   (org-agenda nil "d"))
 
-(defun my/overview-agenda ()
+(defun ag/overview-agenda ()
   (interactive)
   (org-agenda nil "o"))
 
-(defun my/org-roam-search ()
+(defun ag/org-roam-search ()
   (interactive)
   (consult-ripgrep org-roam-directory))
 
-(defun my/org-roam-weekly-goto-week ()
+(defun ag/org-roam-weekly-goto-week ()
   (interactive)
   (let* ((week (format-time-string "%U"))
          (year (format-time-string "%Y"))
@@ -33,10 +33,10 @@
      :node (org-roam-node-create :title title)
      :props '(:finalize find-file))))
 
-(defun my/tag-new-node-as-draft ()
+(defun ag/tag-new-node-as-draft ()
   (org-roam-tag-add '("draft")))
 
-(defun my/org-roam-node-from-cite (keys-entries)
+(defun ag/org-roam-node-from-cite (keys-entries)
   (interactive (list (citar-select-ref)))
   (let ((title (citar-format--entry "${title}" keys-entries))
         (author (citar-format--entry "${author}" keys-entries)))
@@ -53,14 +53,14 @@
 
 ;; hooks
 
-(add-hook 'org-roam-capture-new-node-hook #'my/tag-new-node-as-draft)
+(add-hook 'org-roam-capture-new-node-hook #'ag/tag-new-node-as-draft)
 (add-hook 'org-mode-hook 'variable-pitch-mode)
 (add-hook 'org-mode-hook 'org-indent-mode)
 ;; (add-hook 'org-mode-hook #'org-timed-alerts-mode)
 
 ;; binds
 
-(defvar-keymap my/org-roam-map
+(defvar-keymap ag/org-roam-map
   :doc "org-roam bindings"
   "l" #'org-roam-buffer-toggle
   "f" #'org-roam-node-find
@@ -68,19 +68,19 @@
   "i" #'org-roam-node-insert
   "c" #'org-roam-capture
   "d" #'org-roam-dailies-goto-today
-  "s" #'my/org-roam-search)
+  "s" #'ag/org-roam-search)
   ;; :map org-mode-map
   ;; ("C-c t" . org-roam-tag-add)
 
-(defvar-keymap my/org-map
+(defvar-keymap ag/org-map
   :doc "org-mode bindings"
   "a" #'org-agenda
   "c" #'org-capture
-  "d" #'my/daily-agenda
-  "o" #'my/overview-agenda)
+  "d" #'ag/daily-agenda
+  "o" #'ag/overview-agenda)
 
-(keymap-global-set "C-c o" my/org-map)
-(keymap-global-set "C-c r" my/org-roam-map)
+(keymap-global-set "C-c o" ag/org-map)
+(keymap-global-set "C-c r" ag/org-roam-map)
 
 (with-eval-after-load 'org
   (keymap-set org-mode-map "C-c b" #'org-cite-insert)
@@ -234,7 +234,4 @@
 (org-super-agenda-mode)
 (org-roam-db-autosync-mode)
 
-(provide 'my-org)
-
-
-
+(provide 'ag-org)

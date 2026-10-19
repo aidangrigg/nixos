@@ -8,7 +8,7 @@
 (setq eglot-ignored-server-capabilities '(:inlayHintProvider :documentOnTypeFormattingProvider))
 
 (with-eval-after-load 'eglot
-  (defvar-keymap my/eglot-map
+  (defvar-keymap ag/eglot-map
     :doc "org-mode bindings"
     "a"  #'eglot-code-actions
     "e"  #'flymake-show-diagnostics-buffer
@@ -19,7 +19,7 @@
                `(typst-ts-mode . ,(eglot-alternatives '(("tinymist") ("typst-lsp"))))
                `(python-mode . ,(eglot-alternatives '(("pylsp") ("pyright")))))
 
-  (keymap-set eglot-mode-map "C-c l" my/eglot-map)
+  (keymap-set eglot-mode-map "C-c l" ag/eglot-map)
   (keymap-set eglot-mode-map "M-q"   #'eglot-format-buffer)
   (keymap-set eglot-mode-map "C-c t" #'eldoc-box-help-at-point))
 
@@ -48,4 +48,4 @@
 
 (setq zig-format-on-save nil)
 
-(provide 'my-lsp)
+(provide 'ag-lsp)

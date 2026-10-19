@@ -1,11 +1,11 @@
-(defvar-keymap my/window-map
+(defvar-keymap ag/window-map
   :doc "window management keybinds"
   "h" #'split-window-horizontally
   "v" #'split-window-vertically
   "d" #'delete-other-windows
   "k" #'delete-window)
 
-(keymap-global-set "C-c w" my/window-map)
+(keymap-global-set "C-c w" ag/window-map)
 (keymap-global-set "C-c p" project-prefix-map)
 
 (keymap-global-set "M-/"   #'completion-at-point)
@@ -23,25 +23,25 @@
 
 (setq prefix-help-command #'embark-prefix-help-command)
 
-(defun my/page-down ()
+(defun ag/page-down ()
   (interactive)
   (next-line (/ (window-total-height) 2))
   (recenter))
 
-(defun my/page-up ()
+(defun ag/page-up ()
   (interactive)
   (previous-line (/ (window-total-height) 2))
   (recenter))
 
-(defun my/buffer-dwim ()
+(defun ag/buffer-dwim ()
   (interactive)
   (consult-buffer))
 
-(defun my/find-dwim ()
+(defun ag/find-dwim ()
   (interactive)
   (consult-fd))
 
-(defun my/rg-dwim ()
+(defun ag/rg-dwim ()
   (interactive)
   (consult-ripgrep))
 
@@ -71,17 +71,17 @@
    '("k" . meow-prev)
    '("h" . meow-left)
    '("l" . meow-right)
-   '("D" . my/page-down)
-   '("U" . my/page-up)
+   '("D" . ag/page-down)
+   '("U" . ag/page-up)
    '("<escape>" . ignore))
   (meow-leader-define-key
    '("SPC b" . consult-buffer)
    '("SPC f" . consult-fd)
    '("SPC s" . consult-ripgrep)
    '("z" . popper-toggle)
-   '("b" . my/buffer-dwim)
-   '("f" . my/find-dwim)
-   '("s" . my/rg-dwim)
+   '("b" . ag/buffer-dwim)
+   '("f" . ag/find-dwim)
+   '("s" . ag/rg-dwim)
    '("SPC g" . magit-status)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet))
@@ -110,7 +110,7 @@
    '("B" . meow-back-symbol)
    '("c" . meow-change)
    '("d" . meow-kill)
-   '("D" . my/page-down)
+   '("D" . ag/page-down)
    '("e" . meow-next-word)
    '("E" . meow-next-symbol)
    '("f" . meow-find)
@@ -141,7 +141,7 @@
    '("R" . meow-swap-grab)
    '("t" . meow-till)
    '("u" . meow-undo)
-   '("U" . my/page-up)
+   '("U" . ag/page-up)
    '("w" . meow-mark-word)
    '("W" . meow-mark-symbol)
    '("x" . meow-line)
@@ -157,4 +157,4 @@
 (meow-setup)
 (meow-global-mode 1)
 
-(provide 'my-keybind)
+(provide 'ag-keybind)

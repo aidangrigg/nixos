@@ -7,4 +7,4 @@
         "https://whhone.com/index.xml"))
 
 
-(provide 'my-rss)
+(provide 'ag-rss)

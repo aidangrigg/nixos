@@ -7,4 +7,4 @@
                   indent-tabs-mode t)
             (c-set-offset 'innamespace 0)))
 
-(provide 'my-languages)
+(provide 'ag-langs)
