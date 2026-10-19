@@ -66,8 +66,12 @@ in {
       epkgs.zig-mode
       epkgs.tuareg
       epkgs.protobuf-mode
+
+      epkgs.d2-mode
     ];
   };
+
+  home.packages = [ pkgs.d2 ];
 
   services.emacs = {
     enable = true;
