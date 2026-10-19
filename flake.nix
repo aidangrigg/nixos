@@ -69,11 +69,14 @@
       };
 
       homeConfigurations = {
-        emacs = home-manager.lib.homeManagerConfiguration {
+        work-ubuntu = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs pkgs-unstable;};
           modules = [
             ./home/common/emacs
+            {
+              home.stateVersion = "26.05";
+            }
           ];
         };
       };
