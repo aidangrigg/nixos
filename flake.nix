@@ -42,6 +42,10 @@
                   ./home/common/emacs
                   ./home/common/gaming
                   ./home/common/music
+                  {
+                    # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
+                    home.stateVersion = "24.05";
+                  }
                 ];
 
                 work.imports = [
@@ -54,6 +58,10 @@
                   ./home/common/desktop/common/optional/office.nix
 
                   ./home/common/emacs
+                  {
+                    # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
+                    home.stateVersion = "24.05";
+                  }
                 ];
               };
             }
@@ -73,6 +81,7 @@
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           extraSpecialArgs = {inherit inputs outputs pkgs-unstable;};
           modules = [
+            ./home/aidan.nix
             ./home/common/emacs
             {
               home.stateVersion = "26.05";
