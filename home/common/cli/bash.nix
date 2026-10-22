@@ -28,6 +28,7 @@
 
     shellAliases = {
       rebuild = "sudo nixos-rebuild switch --flake ~/nix#$(hostname)";
+      update = "nix flake update --commit-lock-file";
       del = "${pkgs.trash-cli}/bin/trash";
     };
   };
