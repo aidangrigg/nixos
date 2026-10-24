@@ -7,4 +7,8 @@
                   indent-tabs-mode t)
             (c-set-offset 'innamespace 0)))
 
+(add-hook 'c-mode-common-hook #'my-c-setup)
+(add-hook 'c-ts-mode-hook #'my-c-setup)
+(add-hook 'c++-ts-mode-hook #'my-c-setup)
+
 (provide 'ag-langs)

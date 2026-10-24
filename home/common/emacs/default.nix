@@ -55,7 +55,7 @@ in {
       epkgs.cape                               # not really sure, completion related
 
       epkgs.direnv                             # direnv
-      epkgs.magit # git
+      epkgs.magit                              # git
 
       epkgs.haskell-mode
       epkgs.csv-mode
@@ -68,6 +68,7 @@ in {
       epkgs.protobuf-mode
 
       epkgs.d2-mode
+      epkgs.eat
     ];
   };
 

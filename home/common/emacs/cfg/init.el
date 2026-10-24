@@ -10,4 +10,5 @@
 (require 'ag-ui)
 (require 'ag-lsp)
 (require 'ag-langs)
+(require 'ag-tramp)
 
