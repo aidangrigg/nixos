@@ -69,6 +69,10 @@ in {
 
       epkgs.d2-mode
       epkgs.eat
+
+      # clojure stuff
+      epkgs.clojure-mode
+      epkgs.cider
     ];
   };
 
