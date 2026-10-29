@@ -38,6 +38,12 @@ in {
   programs.patched-dmenu.enable = true;
   programs.patched-st.enable = true;
 
+  xsession.initExtra = ''
+    xset s off
+    xset dpms 0 0 0
+    xset +dpms
+  '';
+
   xsession.windowManager.xmonad = {
     enable = true;
     config = ./xmonad.hs;
@@ -65,22 +71,22 @@ in {
       '';
     in ''
     Config { overrideRedirect  = False
-             , font            = "Terminus 8"
-             , additionalFonts = ["Siji 8", "DotGothic16"]
-             , textOffsets     = [1]
-             , bgColor         = "#1a1a1a"
-             , fgColor         = "#e0e0e0"
-             , position        = TopSizeOffset C 90 25 10
-             , commands =
-               [ Run Date "%a %H:%M, %d %b" "date" 10
-               , Run UnsafeXMonadLog
-               , Run Com "${music_script}" [] "mpd_script" 10
-               , Run Memory [ "-t", "<used>G", "--", "--scale", "1024"] 20
-               ]
-              , sepChar  = "%"
-              , alignSep = "}{"
-              , template = "  %UnsafeXMonadLog% }{ %mpd_script%   %memory%   %date%  "
-    }
+           , font              = "Terminus 8"
+           , additionalFonts   = ["Siji 8", "DotGothic16"]
+           , textOffsets       = [1]
+           , bgColor           = "#1a1a1a"
+           , fgColor           = "#e0e0e0"
+           , position          = TopSizeOffset C 90 25 10
+           , commands =
+             [ Run Date "%a %H:%M, %d %b" "date" 10
+             , Run UnsafeXMonadLog
+             , Run Com "${music_script}" [] "mpd_script" 10
+             , Run Memory [ "-t", "<used>G", "--", "--scale", "1024"] 20
+             ]
+           , sepChar  = "%"
+           , alignSep = "}{"
+           , template = "  %UnsafeXMonadLog% }{ %mpd_script%   %memory%   %date%  "
+           }
     '';
   };
 

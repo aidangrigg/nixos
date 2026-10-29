@@ -197,14 +197,11 @@ myManageHook = composeAll
 myStartupHook = do
   spawnOnce "xsetroot -cursor_name Quintom_Ink"
 
-  -- spawnOnce "xset r rate 250 50"
   -- Fixes `xdg-open`. See here:
   --  https://www.reddit.com/r/NixOS/comments/193hk48/comment/khbtfy9/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
   spawnOnce "systemctl --user import-environment PATH && systemctl --user restart xdg-desktop-portal.service"
   setWMName "LG3D"
   spawnOnce "lxqt-policykit-agent"
-  spawnOnce "xset s off && xset -dpms"
-  spawnOnce "xidlehook --not-when-fullscreen --not-when-audio --timer 600 'i3lock -c 3e688a & xset dpms force off' ''"
 
 data TABBED = TABBED deriving (Read, Show, Eq, Typeable)
 
